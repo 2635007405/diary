@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>数字日记全记录</title>
+    <style>
+        :root {
+            --max-width: 800px;
+            --primary-color: #5d4037;
+            --secondary-color: #8d6e63;
+            --paper-texture: repeating-linear-gradient(
+                0deg,
+                #fff5e6 0px,
+                #fff5e6 24px,
+                #ffeedd 25px
+            );
+        }
+
+        body {
+            font-family: 'SimSun', STSong, serif;
+            line-height: 1.8;
+            max-width: var(--max-width);
+            margin: 0 auto;
+            padding: 40px 20px;
+            color: #4e342e;
+            background: var(--paper-texture),
+                        linear-gradient(to bottom right, #fff5e6, #ffe4c4);
+            background-blend-mode: multiply;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1) inset;
+        }
+
+        .chapter-container {
+            margin: 40px 0;
+            padding: 30px;
+            background: rgba(255, 255, 255, 0.85);
+            border-radius: 3px;
+            position: relative;
+            border: 1px solid #e0d7d0;
+            box-shadow: 
+                0 1px 4px rgba(0,0,0,0.04),
+                0 10px 20px -10px rgba(0,0,0,0.1);
+        }
+
+        .chapter-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 30px;
+            right: 30px;
+            height: 3px;
+            background: linear-gradient(to right, 
+                transparent 0%, 
+                rgba(0,0,0,0.1) 50%, 
+                transparent 100%
+            );
+        }
+
+        .chapter-title {
+            font-size: 1.8em;
+            text-align: center;
+            margin: 30px 0;
+            font-weight: 700;
+            letter-spacing: 2px;
+            color: var(--primary-color);
+            position: relative;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+        }
+
+        .chapter-title::after {
+            content: "";
+            display: block;
+            width: 60px;
+            height: 3px;
+            background: var(--secondary-color);
+            margin: 10px auto;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .date {
+            margin: 25px 0 10px;
+            padding-left: 3em;
+            font-weight: 600;
+            color: #5d4037;
+            position: relative;
+            font-style: italic;
+        }
+
+        .date::before {
+            content: "✎";
+            position: absolute;
+            left: 1em;
+            color: var(--secondary-color);
+            font-size: 1.2em;
+        }
+
+        .content {
+            padding-left: 4em;
+            white-space: pre-wrap;
+            margin-bottom: 1.5em;
+            border-left: 2px solid #d7ccc8;
+            padding-left: 1.5em;
+            background: linear-gradient(to right, 
+                transparent 0%, 
+                transparent 20px, 
+                rgba(0,0,0,0.02) 20px, 
+                rgba(0,0,0,0.02) 100%
+            );
+        }
+
+        .supplement {
+            background: rgba(255, 245, 238, 0.8);
+            border-left: 4px solid #bcaaa4;
+            margin: 1.5em 3em;
+            padding: 1em 2em;
+            color: #6d4c41;
+            border-radius: 0 5px 5px 0;
+            box-shadow: 2px 2px 5px rgba(0,0,0,0.05);
+        }
+
+        .stats {
+            background: rgba(239, 235, 233, 0.8);
+            padding: 25px;
+            margin: 30px 0;
+            border-radius: 10px;
+            box-shadow: 
+                inset 0 0 8px rgba(0,0,0,0.05),
+                2px 2px 5px rgba(0,0,0,0.05);
+            border: 1px solid #d7ccc8;
+        }
+
+        @media (max-width: 840px) {
+            body {
+                padding: 20px 10px;
+            }
+            .content {
+                padding-left: 1em;
+                margin-left: 0;
+                background: none;
+            }
+            .supplement {
+                margin: 1em 0;
+            }
+            .chapter-container {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="diary-container" class="chapter-container">
+        <div class="loading">正在加载日记内容...</div>
+    </div>
+
+    <script>
+        const GIST_URL = 'https://gist.githubusercontent.com/2635007405/e64e0bcb30c6074e612f54f60d88a8fb/raw/diary';
+
+        class DiaryParser {
+            constructor(content) {
+                this.lines = content.split('\n');
+                this.currentChapter = null;
+                this.output = [];
+            }
+
+            parse() {
+                this.lines.forEach(line => {
+                    line = line.trim();
+                    if (!line) return;
+
+                    if (line.startsWith('《') && line.endsWith('》')) {
+                        this.handleChapter(line);
+                    } else if (/^\d{4}年\d{1,2}月\d{1,2}日/.test(line)) {
+                        this.handleDate(line);
+                    } else if (line.startsWith('补充部分')) {
+                        this.handleSupplement(line);
+                    } else if (line.startsWith('阅读时请注意以下几点:')) {
+                        this.handleStats(line);
+                    } else {
+                        this.handleContent(line);
+                    }
+                });
+                return this.output.join('\n');
+            }
+
+            handleChapter(line) {
+                if (this.currentChapter) {
+                    this.output.push(`<div class="chapter-title">${this.currentChapter}·完</div>`);
+                }
+                this.currentChapter = line;
+                this.output.push(
+                    `<div class="chapter-title">${line}</div>`,
+                    '<div class="chapter-content">'
+                );
+            }
+
+            handleDate(line) {
+                const asterisk = (line.match(/\*+/g) || []).join('');
+                this.output.push(
+                    `</div>`,
+                    `<div class="date">${line.replace(/\*+/g, '')}`,
+                    asterisk ? `<span class="asterisk">${asterisk}</span>` : '',
+                    '</div>',
+                    '<div class="content">'
+                );
+            }
+
+            handleSupplement(line) {
+                this.output.push(
+                    `</div>`,
+                    `<div class="supplement">${line}</div>`,
+                    '<div class="content">'
+                );
+            }
+
+            handleStats(line) {
+                this.output.push(
+                    `</div>`,
+                    `<div class="stats">${line}</div>`,
+                    '<div class="content">'
+                );
+            }
+
+            handleContent(line) {
+                this.output.push(line);
+            }
+        }
+
+        async function loadDiary() {
+            try {
+                const response = await fetch(GIST_URL);
+                const content = await response.text();
+                const parser = new DiaryParser(content);
+                const html = parser.parse();
+                document.getElementById('diary-container').innerHTML = html;
+            } catch (error) {
+                console.error('加载日记失败:', error);
+                document.getElementById('diary-container').innerHTML = 
+                    '<div class="error">日记加载失败，请稍后重试</div>';
+            }
+        }
+
+        loadDiary();
+    </script>
+</body>
+</html>
