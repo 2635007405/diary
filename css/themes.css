@@ -1,0 +1,31 @@
+/* css/themes.css */
+:root {
+    --bg-day: #fff5e6;
+    --text-day: #4e342e;
+    --bg-night: #2d2d2d;
+    --text-night: #e0e0e0;
+}
+
+body.night-mode {
+    background: var(--bg-night) !important;
+    color: var(--text-night) !important;
+}
+
+.night-mode .chapter-container {
+    background: rgba(40, 40, 40, 0.9) !important;
+    border-color: #555 !important;
+}
+
+#back-to-top {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    padding: 10px 15px;
+    background: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    opacity: 0;
+    transition: opacity 0.3s;
+}
