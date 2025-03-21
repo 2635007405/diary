@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>校园生活录</title>
+    <link rel="stylesheet" href="css/themes.css">
     <style>
         :root {
             --max-width: 800px;
@@ -28,8 +29,47 @@
                         linear-gradient(to bottom right, #fff5e6, #ffe4c4);
             background-blend-mode: multiply;
             box-shadow: 0 0 20px rgba(0,0,0,0.1) inset;
+            transition: background 0.3s, color 0.3s;
         }
 
+        /* 新增侧边栏样式 */
+        #sidebar {
+            position: fixed;
+            left: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(255,255,255,0.9);
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            max-height: 80vh;
+            overflow-y: auto;
+            width: 200px;
+            z-index: 1000;
+        }
+
+        #search-box {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 10px;
+            border: 1px solid var(--secondary-color);
+            border-radius: 4px;
+        }
+
+        .toc-item {
+            cursor: pointer;
+            padding: 5px;
+            margin: 3px 0;
+            border-left: 3px solid transparent;
+            transition: all 0.2s;
+        }
+
+        .toc-item:hover {
+            border-color: var(--primary-color);
+            background: rgba(93, 64, 55, 0.05);
+        }
+
+        /* 原有样式保留 */
         .chapter-container {
             margin: 40px 0;
             padding: 30px;
@@ -130,6 +170,9 @@
         }
 
         @media (max-width: 840px) {
+            #sidebar {
+                display: none;
+            }
             body {
                 padding: 20px 10px;
             }
@@ -144,14 +187,30 @@
             .chapter-container {
                 padding: 20px;
             }
+            #search-box {
+                position: fixed;
+                top: 10px;
+                right: 10px;
+                width: 120px;
+                z-index: 1000;
+                background: rgba(255,255,255,0.9);
+            }
         }
     </style>
 </head>
 <body>
+    <!-- 新增侧边栏 -->
+    <div id="sidebar">
+        <input type="text" id="search-box" placeholder="搜索日记...">
+        <div id="toc-container"></div>
+    </div>
+
     <div id="diary-container" class="chapter-container">
         <div class="loading">正在加载日记内容...</div>
     </div>
 
+    <!-- 新增实用脚本 -->
+    <script src="js/utils.js"></script>
     <script>
         const GIST_URL = 'https://gist.githubusercontent.com/2635007405/e64e0bcb30c6074e612f54f60d88a8fb/raw/diary';
 
@@ -160,6 +219,9 @@
                 this.lines = content.split('\n');
                 this.currentChapter = null;
                 this.output = [];
+                this.currentContentOpen = false;
+                this.tocData = [];
+                this.entryCount = 0;
             }
 
             parse() {
@@ -179,45 +241,73 @@
                         this.handleContent(line);
                     }
                 });
-                return this.output.join('\n');
+                
+                if (this.currentContentOpen) {
+                    this.output.push('</div>');
+                }
+                return {html: this.output.join('\n'), toc: this.tocData};
             }
 
             handleChapter(line) {
                 if (this.currentChapter) {
+                    if (this.currentContentOpen) {
+                        this.output.push('</div>');
+                        this.currentContentOpen = false;
+                    }
                     this.output.push(`<div class="chapter-title">${this.currentChapter}·完</div>`);
                 }
+                
                 this.currentChapter = line;
                 this.output.push(
                     `<div class="chapter-title">${line}</div>`,
                     '<div class="chapter-content">'
                 );
+                this.currentContentOpen = true;
             }
 
             handleDate(line) {
+                // 排除特定日期条目
+                if (line.includes("2024年12月19日11:48分")) return;
+                
                 const asterisk = (line.match(/\*+/g) || []).join('');
+                if (this.currentContentOpen) {
+                    this.output.push('</div>');
+                }
+                const entryId = `entry-${this.entryCount++}`;
+                this.tocData.push({
+                    text: line.replace(/\*+/g, ''),
+                    id: entryId
+                });
+                
                 this.output.push(
-                    `</div>`,
-                    `<div class="date">${line.replace(/\*+/g, '')}`,
+                    `<div class="date" id="${entryId}">${line.replace(/\*+/g, '')}`,
                     asterisk ? `<span class="asterisk">${asterisk}</span>` : '',
                     '</div>',
                     '<div class="content">'
                 );
+                this.currentContentOpen = true;
             }
 
             handleSupplement(line) {
+                if (this.currentContentOpen) {
+                    this.output.push('</div>');
+                }
                 this.output.push(
-                    `</div>`,
                     `<div class="supplement">${line}</div>`,
                     '<div class="content">'
                 );
+                this.currentContentOpen = true;
             }
 
             handleStats(line) {
+                if (this.currentContentOpen) {
+                    this.output.push('</div>');
+                }
                 this.output.push(
-                    `</div>`,
                     `<div class="stats">${line}</div>`,
                     '<div class="content">'
                 );
+                this.currentContentOpen = true;
             }
 
             handleContent(line) {
@@ -225,13 +315,17 @@
             }
         }
 
-        async function loadDiary() {
+        async function initDiary() {
             try {
                 const response = await fetch(GIST_URL);
                 const content = await response.text();
                 const parser = new DiaryParser(content);
-                const html = parser.parse();
+                const {html, toc} = parser.parse();
+                
                 document.getElementById('diary-container').innerHTML = html;
+                generateTOC(toc);
+                setupSearch();
+                initTheme();
             } catch (error) {
                 console.error('加载日记失败:', error);
                 document.getElementById('diary-container').innerHTML = 
@@ -239,7 +333,7 @@
             }
         }
 
-        loadDiary();
+        initDiary();
     </script>
 </body>
 </html>
