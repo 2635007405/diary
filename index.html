@@ -32,7 +32,6 @@
             transition: background 0.3s, color 0.3s;
         }
 
-        /* 侧边栏样式 */
         #sidebar {
             position: fixed;
             left: 20px;
@@ -69,22 +68,6 @@
             background: rgba(93, 64, 55, 0.05);
         }
 
-        /* 移动端悬浮按钮 */
-        #mobile-toc-toggle {
-            position: fixed;
-            bottom: 20px;
-            left: 20px;
-            padding: 12px;
-            background: var(--primary-color);
-            color: white;
-            border: none;
-            border-radius: 50%;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
-            z-index: 1001;
-            display: none;
-        }
-
-        /* 原有内容样式保持不变 */
         .chapter-container {
             margin: 40px 0;
             padding: 30px;
@@ -95,6 +78,20 @@
             box-shadow: 
                 0 1px 4px rgba(0,0,0,0.04),
                 0 10px 20px -10px rgba(0,0,0,0.1);
+        }
+
+        .chapter-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 30px;
+            right: 30px;
+            height: 3px;
+            background: linear-gradient(to right, 
+                transparent 0%, 
+                rgba(0,0,0,0.1) 50%, 
+                transparent 100%
+            );
         }
 
         .chapter-title {
@@ -108,6 +105,16 @@
             text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
         }
 
+        .chapter-title::after {
+            content: "";
+            display: block;
+            width: 60px;
+            height: 3px;
+            background: var(--secondary-color);
+            margin: 10px auto;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
         .date {
             margin: 25px 0 10px;
             padding-left: 3em;
@@ -117,61 +124,96 @@
             font-style: italic;
         }
 
+        .date::before {
+            content: "✎";
+            position: absolute;
+            left: 1em;
+            color: var(--secondary-color);
+            font-size: 1.2em;
+        }
+
         .content {
             padding-left: 4em;
             white-space: pre-wrap;
             margin-bottom: 1.5em;
             border-left: 2px solid #d7ccc8;
             padding-left: 1.5em;
+            background: linear-gradient(to right, 
+                transparent 0%, 
+                transparent 20px, 
+                rgba(0,0,0,0.02) 20px, 
+                rgba(0,0,0,0.02) 100%
+            );
         }
 
         .supplement {
             background: rgba(255, 245, 238, 0.8);
             border-left: 4px solid #bcaaa4;
-            margin: 1.5em 3em;
+            margin: 1.5em 0; /* 修改左右边距为0 */
             padding: 1em 2em;
             color: #6d4c41;
             border-radius: 0 5px 5px 0;
+            box-shadow: 2px 2px 5px rgba(0,0,0,0.05);
+            width: calc(100% - 4em); /* 新增宽度控制 */
+            margin-left: 2em;
+            margin-right: 2em;
         }
 
-        /* 移动端适配 */
+        .stats {
+            background: rgba(239, 235, 233, 0.8);
+            padding: 25px;
+            margin: 30px 0;
+            border-radius: 10px;
+            box-shadow: 
+                inset 0 0 8px rgba(0,0,0,0.05),
+                2px 2px 5px rgba(0,0,0,0.05);
+            border: 1px solid #d7ccc8;
+        }
+
         @media (max-width: 840px) {
             #sidebar {
                 display: none;
-                width: 80%;
-                left: 10%;
-                top: 20%;
             }
-            
-            #mobile-toc-toggle {
-                display: block;
+            body {
+                padding: 20px 10px;
             }
-            
+            .content {
+                padding-left: 1em;
+                margin-left: 0;
+                background: none;
+            }
+            .supplement {
+                margin: 1em 0;
+                width: calc(100% - 2em); /* 移动端适配 */
+                margin-left: 1em;
+                margin-right: 1em;
+                padding: 1em;
+            }
+            .chapter-container {
+                padding: 20px;
+            }
             #search-box {
                 position: fixed;
                 top: 10px;
                 right: 10px;
                 width: 120px;
                 z-index: 1000;
+                background: rgba(255,255,255,0.9);
             }
         }
     </style>
 </head>
 <body>
-    <!-- 侧边目录 -->
     <div id="sidebar">
         <input type="text" id="search-box" placeholder="搜索日记...">
         <div id="toc-container"></div>
     </div>
 
-    <!-- 日记容器 -->
     <div id="diary-container" class="chapter-container">
         <div class="loading">正在加载日记内容...</div>
     </div>
 
-    <!-- 引入工具脚本 -->
     <script src="js/utils.js"></script>
-    
     <script>
         const GIST_URL = 'https://gist.githubusercontent.com/2635007405/e64e0bcb30c6074e612f54f60d88a8fb/raw/diary';
 
@@ -203,47 +245,71 @@
                     }
                 });
                 
-                if (this.currentContentOpen) this.output.push('</div>');
+                if (this.currentContentOpen) {
+                    this.output.push('</div>');
+                }
                 return {html: this.output.join('\n'), toc: this.tocData};
             }
 
             handleChapter(line) {
                 if (this.currentChapter) {
-                    if (this.currentContentOpen) this.output.push('</div>');
+                    if (this.currentContentOpen) {
+                        this.output.push('</div>');
+                        this.currentContentOpen = false;
+                    }
                     this.output.push(`<div class="chapter-title">${this.currentChapter}·完</div>`);
                 }
+                
                 this.currentChapter = line;
-                this.output.push(`<div class="chapter-title">${line}</div><div class="chapter-content">`);
+                this.output.push(
+                    `<div class="chapter-title">${line}</div>`,
+                    '<div class="chapter-content">'
+                );
                 this.currentContentOpen = true;
             }
 
             handleDate(line) {
-                // 过滤特定日期
+                // 排除特定日期条目
                 if (line.includes("2024年12月19日11:48分")) return;
                 
                 const asterisk = (line.match(/\*+/g) || []).join('');
-                if (this.currentContentOpen) this.output.push('</div>');
-                
+                if (this.currentContentOpen) {
+                    this.output.push('</div>');
+                }
                 const entryId = `entry-${this.entryCount++}`;
-                this.tocData.push({ text: line.replace(/\*+/g, ''), id: entryId });
+                this.tocData.push({
+                    text: line.replace(/\*+/g, ''),
+                    id: entryId
+                });
                 
                 this.output.push(
                     `<div class="date" id="${entryId}">${line.replace(/\*+/g, '')}`,
                     asterisk ? `<span class="asterisk">${asterisk}</span>` : '',
-                    '</div><div class="content">'
+                    '</div>',
+                    '<div class="content">'
                 );
                 this.currentContentOpen = true;
             }
 
             handleSupplement(line) {
-                if (this.currentContentOpen) this.output.push('</div>');
-                this.output.push(`<div class="supplement">${line}</div><div class="content">`);
+                if (this.currentContentOpen) {
+                    this.output.push('</div>');
+                }
+                this.output.push(
+                    `<div class="supplement">${line}</div>`,
+                    '<div class="content">'
+                );
                 this.currentContentOpen = true;
             }
 
             handleStats(line) {
-                if (this.currentContentOpen) this.output.push('</div>');
-                this.output.push(`<div class="stats">${line}</div><div class="content">`);
+                if (this.currentContentOpen) {
+                    this.output.push('</div>');
+                }
+                this.output.push(
+                    `<div class="stats">${line}</div>`,
+                    '<div class="content">'
+                );
                 this.currentContentOpen = true;
             }
 
