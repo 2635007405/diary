@@ -1,4 +1,3 @@
-// 目录生成和搜索功能
 function generateTOC(tocData) {
     const container = document.getElementById('toc-container');
     container.innerHTML = tocData.map(item => `
@@ -9,6 +8,7 @@ function generateTOC(tocData) {
         item.addEventListener('click', () => {
             const target = document.getElementById(item.dataset.id);
             target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            document.getElementById('sidebar').classList.remove('active');
         });
     });
 }
@@ -34,13 +34,6 @@ function setupSearch() {
                 highlightTOC(content.previousElementSibling?.id);
             }
         });
-
-        if (!found && firstMatch) {
-            firstMatch = null;
-            document.querySelectorAll('.toc-item').forEach(item => {
-                item.style.background = 'none';
-            });
-        }
     });
 
     function highlightTOC(targetId) {
@@ -50,7 +43,6 @@ function setupSearch() {
     }
 }
 
-// 主题切换和移动端功能
 function initTheme() {
     const themeToggle = document.createElement('button');
     themeToggle.id = 'theme-toggle';
@@ -83,16 +75,5 @@ function initTheme() {
 
     backButton.addEventListener('click', () => {
         window.scrollTo({ top: 0, behavior: 'smooth' });
-    });
-
-    // 移动端目录切换
-    const toggleBtn = document.createElement('button');
-    toggleBtn.id = 'mobile-toc-toggle';
-    toggleBtn.textContent = '📖 目录';
-    document.body.appendChild(toggleBtn);
-
-    const sidebar = document.getElementById('sidebar');
-    toggleBtn.addEventListener('click', () => {
-        sidebar.style.display = sidebar.style.display === 'block' ? 'none' : 'block';
     });
 }
