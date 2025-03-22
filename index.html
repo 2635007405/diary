@@ -140,12 +140,12 @@
         .supplement {
             background: rgba(255, 245, 238, 0.8);
             border-left: 4px solid #bcaaa4;
-            margin: 1.5em 0;
+            margin: 1.5em 0;  /* 取消左右边距 */
             padding: 1em 2em;
             color: #6d4c41;
             border-radius: 0 5px 5px 0;
             box-shadow: 2px 2px 5px rgba(0,0,0,0.05);
-            width: calc(100% - 4em);
+            width: calc(100% - 4em);  /* 与正文同宽 */
             margin-left: 2em;
             margin-right: 2em;
         }
@@ -153,30 +153,25 @@
         @media (max-width: 840px) {
             #sidebar {
                 display: none;
-                width: 80%;
-                left: 10%;
-                top: 20%;
-                transform: translate(-50%, -50%);
-                opacity: 0;
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100vh;
+                background: rgba(255,255,255,0.98);
+                z-index: 1002;
+                border-radius: 0;
+                padding: 20px;
+                overflow-y: auto;
             }
             
             #sidebar.active {
                 display: block;
-                opacity: 1;
-                transform: translate(-50%, -50%) scale(1);
+                animation: slideIn 0.3s ease;
             }
-            
+
             #mobile-toc-toggle {
                 display: flex;
-            }
-            
-            body {
-                padding: 20px 10px;
-            }
-            
-            .content {
-                padding-left: 1em;
-                margin-left: 0;
             }
             
             .supplement {
@@ -185,21 +180,28 @@
                 margin-right: 1em;
                 padding: 1em;
             }
-            
-            #search-box {
-                position: fixed;
-                top: 10px;
-                right: 10px;
-                width: 120px;
-                z-index: 1000;
-                background: rgba(255,255,255,0.9);
+
+            .close-toc {
+                position: absolute;
+                top: 15px;
+                right: 15px;
+                background: none;
+                border: none;
+                font-size: 1.5em;
+                color: var(--primary-color);
             }
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(-100%); }
+            to { transform: translateX(0); }
         }
     </style>
 </head>
 <body>
     <!-- 侧边栏 -->
     <div id="sidebar">
+        <button class="close-toc">×</button>
         <input type="text" id="search-box" placeholder="搜索日记...">
         <div id="toc-container"></div>
     </div>
@@ -259,7 +261,6 @@
             }
 
             handleDate(line) {
-                // 过滤特定日期条目
                 if (line.includes("2024年12月19日11:48分")) return;
                 
                 const asterisk = (line.match(/\*+/g) || []).join('');
@@ -296,10 +297,15 @@
         // 初始化移动端交互
         const sidebar = document.getElementById('sidebar');
         const toggleBtn = document.getElementById('mobile-toc-toggle');
+        const closeBtn = document.querySelector('.close-toc');
 
         toggleBtn.addEventListener('click', (e) => {
             e.stopPropagation();
             sidebar.classList.toggle('active');
+        });
+
+        closeBtn.addEventListener('click', () => {
+            sidebar.classList.remove('active');
         });
 
         document.addEventListener('click', (e) => {
