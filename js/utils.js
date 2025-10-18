@@ -7,15 +7,23 @@ function generateTOC(tocData) {
     document.querySelectorAll('.toc-item').forEach(item => {
         item.addEventListener('click', () => {
             const target = document.getElementById(item.dataset.id);
-            target.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            document.getElementById('sidebar').classList.remove('active');
+            if (target) {
+                target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+            // 轻微延迟，避免滚动与关闭动画冲突
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('mobile-overlay');
+            document.body.classList.remove('sidebar-open');
+            setTimeout(() => {
+                sidebar.classList.remove('active');
+                overlay.classList.remove('active');
+            }, 100);
         });
     });
 }
 
 function setupSearch() {
     const searchBox = document.getElementById('search-box');
-    let firstMatch = null;
 
     searchBox.addEventListener('input', (e) => {
         const keyword = e.target.value.toLowerCase();
@@ -23,22 +31,26 @@ function setupSearch() {
 
         document.querySelectorAll('.content').forEach(content => {
             const text = content.textContent.toLowerCase();
-            const isMatch = text.includes(keyword);
-            
+            const isMatch = keyword ? text.includes(keyword) : false;
+
             content.style.backgroundColor = isMatch ? '#fff3e0' : 'transparent';
-            
+
             if (!found && isMatch) {
-                firstMatch = content;
                 found = true;
                 content.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                highlightTOC(content.previousElementSibling?.id);
+                const prev = content.previousElementSibling;
+                if (prev && prev.id) {
+                    highlightTOC(prev.id);
+                }
             }
         });
     });
 
     function highlightTOC(targetId) {
         document.querySelectorAll('.toc-item').forEach(item => {
-            item.style.background = item.dataset.id === targetId ? 'rgba(93, 64, 55, 0.1)' : 'none';
+            item.style.background = item.dataset.id === targetId
+                ? 'rgba(93, 64, 55, 0.1)'
+                : 'none';
         });
     }
 }
@@ -51,10 +63,10 @@ function initTheme() {
 
     themeToggle.addEventListener('click', () => {
         document.body.classList.toggle('night-mode');
-        themeToggle.textContent = document.body.classList.contains('night-mode') 
-            ? '☀️ 日间模式' 
+        themeToggle.textContent = document.body.classList.contains('night-mode')
+            ? '☀️ 日间模式'
             : '🌙 夜间模式';
-        localStorage.setItem('theme', 
+        localStorage.setItem('theme',
             document.body.classList.contains('night-mode') ? 'night' : 'day');
     });
 
