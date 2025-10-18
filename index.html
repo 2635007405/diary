@@ -32,7 +32,7 @@
             transition: background 0.3s, color 0.3s;
         }
 
-        /* 侧边栏样式 */
+        /* 侧边栏样式（桌面） */
         #sidebar {
             position: fixed;
             left: 20px;
@@ -82,7 +82,7 @@
             border: none;
             border-radius: 50%;
             box-shadow: 0 2px 5px rgba(0,0,0,0.3);
-            z-index: 1001;
+            z-index: 1003;
             display: none;
             align-items: center;
             justify-content: center;
@@ -96,7 +96,7 @@
             border-radius: 3px;
             position: relative;
             border: 1px solid #e0d7d0;
-            box-shadow: 
+            box-shadow:
                 0 1px 4px rgba(0,0,0,0.04),
                 0 10px 20px -10px rgba(0,0,0,0.1);
         }
@@ -130,7 +130,6 @@
         }
 
         .content {
-            padding-left: 4em;
             white-space: pre-wrap;
             margin-bottom: 1.5em;
             border-left: 2px solid #d7ccc8;
@@ -140,45 +139,56 @@
         .supplement {
             background: rgba(255, 245, 238, 0.8);
             border-left: 4px solid #bcaaa4;
-            margin: 1.5em 0;  /* 取消左右边距 */
+            margin: 1.5em 0;
             padding: 1em 2em;
             color: #6d4c41;
             border-radius: 0 5px 5px 0;
             box-shadow: 2px 2px 5px rgba(0,0,0,0.05);
-            width: calc(100% - 4em);  /* 与正文同宽 */
+            width: calc(100% - 4em);
             margin-left: 2em;
             margin-right: 2em;
         }
 
         @media (max-width: 840px) {
+            /* 侧边栏改为滑入面板 */
             #sidebar {
-                display: none;
                 position: fixed;
                 top: 0;
                 left: 0;
-                width: 100%;
+                width: 85vw;
+                max-width: 420px;
                 height: 100vh;
                 background: rgba(255,255,255,0.98);
                 z-index: 1002;
                 border-radius: 0;
                 padding: 20px;
                 overflow-y: auto;
+                transform: translateX(-100%);
+                transition: transform 0.3s ease;
+                box-shadow: 4px 0 12px rgba(0,0,0,0.15);
             }
-            
+
             #sidebar.active {
-                display: block;
-                animation: slideIn 0.3s ease;
+                transform: translateX(0);
+            }
+
+            #mobile-overlay {
+                position: fixed;
+                inset: 0;
+                background: rgba(0,0,0,0.35);
+                z-index: 1001;
+                opacity: 0;
+                pointer-events: none;
+                transition: opacity 0.2s ease;
+            }
+
+            #mobile-overlay.active {
+                opacity: 1;
+                pointer-events: auto;
             }
 
             #mobile-toc-toggle {
                 display: flex;
-            }
-            
-            .supplement {
-                width: calc(100% - 2em);
-                margin-left: 1em;
-                margin-right: 1em;
-                padding: 1em;
             }
 
             .close-toc {
@@ -189,6 +199,18 @@
                 border: none;
                 font-size: 1.5em;
                 color: var(--primary-color);
+            }
+
+            body.sidebar-open {
+                overflow: hidden;
+                touch-action: none;
+            }
+
+            .supplement {
+                width: calc(100% - 2em);
+                margin-left: 1em;
+                margin-right: 1em;
+                padding: 1em;
             }
         }
 
@@ -205,6 +227,8 @@
         <input type="text" id="search-box" placeholder="搜索日记...">
         <div id="toc-container"></div>
     </div>
+    <!-- 移动端遮罩 -->
+    <div id="mobile-overlay"></div>
 
     <!-- 移动端目录按钮 -->
     <button id="mobile-toc-toggle">📖</button>
@@ -216,6 +240,7 @@
 
     <script src="js/utils.js"></script>
     <script>
+        // 远程数据源
         const GIST_URL = 'https://gist.githubusercontent.com/2635007405/e64e0bcb30c6074e612f54f60d88a8fb/raw/diary';
 
         class DiaryParser {
@@ -245,9 +270,9 @@
                         this.handleContent(line);
                     }
                 });
-                
+
                 if (this.currentContentOpen) this.output.push('</div>');
-                return {html: this.output.join('\n'), toc: this.tocData};
+                return { html: this.output.join('\n'), toc: this.tocData };
             }
 
             handleChapter(line) {
@@ -262,13 +287,13 @@
 
             handleDate(line) {
                 if (line.includes("2024年12月19日11:48分")) return;
-                
+
                 const asterisk = (line.match(/\*+/g) || []).join('');
                 if (this.currentContentOpen) this.output.push('</div>');
-                
+
                 const entryId = `entry-${this.entryCount++}`;
                 this.tocData.push({ text: line.replace(/\*+/g, ''), id: entryId });
-                
+
                 this.output.push(
                     `<div class="date" id="${entryId}">${line.replace(/\*+/g, '')}`,
                     asterisk ? `<span class="asterisk">${asterisk}</span>` : '',
@@ -298,36 +323,61 @@
         const sidebar = document.getElementById('sidebar');
         const toggleBtn = document.getElementById('mobile-toc-toggle');
         const closeBtn = document.querySelector('.close-toc');
+        const overlay = document.getElementById('mobile-overlay');
+
+        function openSidebar() {
+            sidebar.classList.add('active');
+            overlay.classList.add('active');
+            document.body.classList.add('sidebar-open');
+        }
+
+        function closeSidebar() {
+            sidebar.classList.remove('active');
+            overlay.classList.remove('active');
+            document.body.classList.remove('sidebar-open');
+        }
 
         toggleBtn.addEventListener('click', (e) => {
             e.stopPropagation();
-            sidebar.classList.toggle('active');
+            const isActive = sidebar.classList.contains('active');
+            if (isActive) {
+                closeSidebar();
+            } else {
+                openSidebar();
+            }
         });
 
         closeBtn.addEventListener('click', () => {
-            sidebar.classList.remove('active');
+            closeSidebar();
+        });
+
+        overlay.addEventListener('click', () => {
+            closeSidebar();
         });
 
         document.addEventListener('click', (e) => {
-            if (!sidebar.contains(e.target) && e.target !== toggleBtn) {
-                sidebar.classList.remove('active');
+            const clickInsideSidebar = sidebar.contains(e.target);
+            const clickOnToggle = e.target === toggleBtn;
+            if (!clickInsideSidebar && !clickOnToggle) {
+                closeSidebar();
             }
         });
 
         async function initDiary() {
             try {
                 const response = await fetch(GIST_URL);
+                if (!response.ok) throw new Error('网络响应异常');
                 const content = await response.text();
                 const parser = new DiaryParser(content);
-                const {html, toc} = parser.parse();
-                
+                const { html, toc } = parser.parse();
+
                 document.getElementById('diary-container').innerHTML = html;
                 generateTOC(toc);
                 setupSearch();
                 initTheme();
             } catch (error) {
                 console.error('加载日记失败:', error);
-                document.getElementById('diary-container').innerHTML = 
+                document.getElementById('diary-container').innerHTML =
                     '<div class="error">日记加载失败，请稍后重试</div>';
             }
         }
