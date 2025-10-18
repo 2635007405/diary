@@ -3,6 +3,7 @@
     --text-day: #4e342e;
     --bg-night: #2d2d2d;
     --text-night: #e0e0e0;
+    --primary-color: #5d4037; /* 确保变量在外链 CSS 中可用 */
 }
 
 body.night-mode {
