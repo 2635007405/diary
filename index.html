@@ -243,81 +243,128 @@
         // 远程数据源
         const GIST_URL = 'https://gist.githubusercontent.com/2635007405/4b3b7713a5e28641ed3e094724a8f9d6/raw/diary';
 
-        class DiaryParser {
-            constructor(content) {
-                this.lines = content.split('\n');
-                this.currentChapter = null;
-                this.output = [];
-                this.currentContentOpen = false;
-                this.tocData = [];
-                this.entryCount = 0;
+class DiaryParser {
+    constructor(content) {
+        this.lines = content.split('\n');
+        this.currentChapter = null;
+        this.output = [];
+        this.currentContentOpen = false;
+        this.tocData = [];
+        this.entryCount = 0;
+    }
+
+    parse() {
+        this.lines.forEach(line => {
+            line = line.trim();
+            if (!line) return;
+
+            // 章节格式：《xxx》
+            if (line.startsWith('《') && line.endsWith('》')) {
+                this.handleChapter(line);
             }
-
-            parse() {
-                this.lines.forEach(line => {
-                    line = line.trim();
-                    if (!line) return;
-
-                    if (line.startsWith('《') && line.endsWith('》')) {
-                        this.handleChapter(line);
-                    } else if (/^\d{4}年\d{1,2}月\d{1,2}日/.test(line)) {
-                        this.handleDate(line);
-                    } else if (line.startsWith('补充部分')) {
-                        this.handleSupplement(line);
-                    } else if (line.startsWith('阅读时请注意以下几点:')) {
-                        this.handleStats(line);
-                    } else {
-                        this.handleContent(line);
-                    }
-                });
-
-                if (this.currentContentOpen) this.output.push('</div>');
-                return { html: this.output.join('\n'), toc: this.tocData };
+            // 特殊章节：启示录
+            else if (line === '启示录') {
+                this.handleSpecialChapter(line);
             }
-
-            handleChapter(line) {
-                if (this.currentChapter) {
-                    if (this.currentContentOpen) this.output.push('</div>');
-                    this.output.push(`<div class="chapter-title">${this.currentChapter}·完</div>`);
-                }
-                this.currentChapter = line;
-                this.output.push(`<div class="chapter-title">${line}</div><div class="chapter-content">`);
-                this.currentContentOpen = true;
+            // 日期
+            else if (/^\d{4}年\d{1,2}月\d{1,2}日/.test(line)) {
+                this.handleDate(line);
             }
-
-            handleDate(line) {
-                if (line.includes("2024年12月19日11:48分")) return;
-
-                const asterisk = (line.match(/\*+/g) || []).join('');
-                if (this.currentContentOpen) this.output.push('</div>');
-
-                const entryId = `entry-${this.entryCount++}`;
-                this.tocData.push({ text: line.replace(/\*+/g, ''), id: entryId });
-
-                this.output.push(
-                    `<div class="date" id="${entryId}">${line.replace(/\*+/g, '')}`,
-                    asterisk ? `<span class="asterisk">${asterisk}</span>` : '',
-                    '</div><div class="content">'
-                );
-                this.currentContentOpen = true;
+            // 补充部分
+            else if (line.startsWith('补充部分')) {
+                this.handleSupplement(line);
             }
-
-            handleSupplement(line) {
-                if (this.currentContentOpen) this.output.push('</div>');
-                this.output.push(`<div class="supplement">${line}</div><div class="content">`);
-                this.currentContentOpen = true;
+            // 阅读须知
+            else if (line.startsWith('阅读时请注意以下几点:')) {
+                this.handleStats(line);
             }
-
-            handleStats(line) {
-                if (this.currentContentOpen) this.output.push('</div>');
-                this.output.push(`<div class="stats">${line}</div><div class="content">`);
-                this.currentContentOpen = true;
+            // 普通内容
+            else {
+                this.handleContent(line);
             }
+        });
 
-            handleContent(line) {
-                this.output.push(line);
-            }
+        if (this.currentContentOpen) this.output.push('</div>');
+        return { html: this.output.join('\n'), toc: this.tocData };
+    }
+
+    /* ============================
+       普通章节：《xxx》
+    ============================ */
+    handleChapter(line) {
+        if (this.currentChapter) {
+            if (this.currentContentOpen) this.output.push('</div>');
+            this.output.push(`<div class="chapter-title">${this.currentChapter}·完</div>`);
         }
+        this.currentChapter = line;
+
+        const chapterId = `chapter-${this.entryCount++}`;
+        this.tocData.push({ text: line.replace(/[《》]/g, ''), id: chapterId });
+
+        this.output.push(
+            `<div class="chapter-title" id="${chapterId}">${line}</div>`,
+            `<div class="chapter-content">`
+        );
+        this.currentContentOpen = true;
+    }
+
+    /* ============================
+       特殊章节：启示录
+    ============================ */
+    handleSpecialChapter(line) {
+        if (this.currentChapter) {
+            if (this.currentContentOpen) this.output.push('</div>');
+            this.output.push(`<div class="chapter-title">${this.currentChapter}·完</div>`);
+        }
+
+        this.currentChapter = line;
+
+        const chapterId = `chapter-${this.entryCount++}`;
+        this.tocData.push({ text: line, id: chapterId });
+
+        this.output.push(
+            `<div class="chapter-title" id="${chapterId}">${line}</div>`,
+            `<div class="chapter-content">`
+        );
+        this.currentContentOpen = true;
+    }
+
+    /* ============================
+       日期
+    ============================ */
+    handleDate(line) {
+        if (line.includes("2024年12月19日11:48分")) return;
+
+        const asterisk = (line.match(/\*+/g) || []).join('');
+        if (this.currentContentOpen) this.output.push('</div>');
+
+        const entryId = `entry-${this.entryCount++}`;
+        this.tocData.push({ text: line.replace(/\*+/g, ''), id: entryId });
+
+        this.output.push(
+            `<div class="date" id="${entryId}">${line.replace(/\*+/g, '')}`,
+            asterisk ? `<span class="asterisk">${asterisk}</span>` : '',
+            '</div><div class="content">'
+        );
+        this.currentContentOpen = true;
+    }
+
+    handleSupplement(line) {
+        if (this.currentContentOpen) this.output.push('</div>');
+        this.output.push(`<div class="supplement">${line}</div><div class="content">`);
+        this.currentContentOpen = true;
+    }
+
+    handleStats(line) {
+        if (this.currentContentOpen) this.output.push('</div>');
+        this.output.push(`<div class="stats">${line}</div><div class="content">`);
+        this.currentContentOpen = true;
+    }
+
+    handleContent(line) {
+        this.output.push(line);
+    }
+}
 
         // 初始化移动端交互
         const sidebar = document.getElementById('sidebar');
