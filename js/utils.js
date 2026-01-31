@@ -3,58 +3,44 @@
 const GIST_URL =
   "https://gist.githubusercontent.com/2635007405/4b3b7713a5e28641ed3e094724a8f9d6/raw/diary";
 
-// 普通日记标题
 const DATE_REGEX = /(\d{4}年\d{1,2}月\d{1,2}日（[^）]+）)/g;
 
-// “启示录”章节标题（允许前面有空格）
+// 新增：启示录标题（允许前面有空格）——唯一新增的正则
 const SPECIAL_SECTION_REGEX = /^\s*启示录\s*$/m;
 
 // ================== 状态 ==================
 
-/**
- * @typedef {Object} DiaryEntry
- * @property {string} id
- * @property {string} title
- * @property {string} body
- * @property {number} index
- */
-
-let allEntries = /** @type {DiaryEntry[]} */ ([]);
-let filteredEntries = /** @type {DiaryEntry[]} */ ([]);
+let allEntries = [];
+let filteredEntries = [];
 let currentId = null;
 
 // ================== 工具函数 ==================
 
 /**
- * 从原始文本解析出所有日记条目
- * 规则：
- * - 以 “YYYY年M月D日（周X...）” 作为普通日记分隔符
- * - 识别末尾独立章节 “启示录”，并将其作为单独一条，不再解析内部日期
- * @param {string} text
- * @returns {DiaryEntry[]}
+ * 解析日记文本（仅新增启示录支持，其余逻辑保持原样）
  */
 function parseDiary(text) {
   const entries = [];
 
-  // 先从全文中切出“启示录”部分（如果有）
+  // ====== 新增：切出启示录部分 ======
   const specialMatch = text.match(SPECIAL_SECTION_REGEX);
 
-  let mainText = text;       // 普通日记所在部分
+  let mainText = text;       // 普通日记部分
   let apocalypseText = null; // 启示录正文
 
   if (specialMatch) {
     const header = specialMatch[0];
     const pos = text.indexOf(header);
 
-    // 启示录正文 = 标题行之后的所有内容
+    // 启示录正文 = 标题行之后所有内容
     apocalypseText = text.slice(pos + header.length).trim();
 
-    // 普通日记正文 = 启示录标题之前的所有内容
+    // 普通日记正文 = 启示录标题之前所有内容
     mainText = text.slice(0, pos).trim();
   }
 
-  // 解析普通日记（不包含启示录部分）
-  /** @type {{title: string; index: number}[]} */
+  // ====== 以下为你原仓库的解析逻辑，未改动 ======
+
   const markers = [];
   let match;
   while ((match = DATE_REGEX.exec(mainText)) !== null) {
@@ -62,7 +48,6 @@ function parseDiary(text) {
   }
 
   if (markers.length === 0 && !apocalypseText) {
-    // 没有匹配到任何日期，且没有启示录，整篇当成一条
     entries.push({
       id: "only",
       title: "全部内容",
@@ -72,7 +57,6 @@ function parseDiary(text) {
     return entries;
   }
 
-  // 处理每一段普通日记
   for (let i = 0; i < markers.length; i++) {
     const { title, index } = markers[i];
     const start = index + title.length;
@@ -87,7 +71,7 @@ function parseDiary(text) {
     });
   }
 
-  // 最后追加“启示录”作为独立章节（如果存在）
+  // ====== 新增：把启示录作为独立章节追加 ======
   if (apocalypseText) {
     entries.push({
       id: "apocalypse",
@@ -102,8 +86,6 @@ function parseDiary(text) {
 
 /**
  * 简单生成预览文本
- * @param {string} body
- * @param {number} length
  */
 function makePreview(body, length = 40) {
   const clean = body.replace(/\s+/g, " ").trim();
@@ -113,7 +95,6 @@ function makePreview(body, length = 40) {
 
 /**
  * 根据关键字过滤
- * @param {string} keyword
  */
 function filterEntries(keyword) {
   if (!keyword) {
@@ -130,8 +111,7 @@ function filterEntries(keyword) {
 }
 
 /**
- * 将当前主题写入 localStorage
- * @param {"light"|"dark"} mode
+ * 主题存储
  */
 function saveTheme(mode) {
   try {
@@ -139,10 +119,6 @@ function saveTheme(mode) {
   } catch (_) {}
 }
 
-/**
- * 读取主题
- * @returns {"light"|"dark"|null}
- */
 function loadTheme() {
   try {
     const v = localStorage.getItem("diary-theme");
@@ -165,8 +141,6 @@ const themeToggleEl = document.getElementById("theme-toggle");
  * 渲染左侧列表
  */
 function renderList() {
-  if (!entryListEl || !entryCountEl) return;
-
   entryListEl.innerHTML = "";
   entryCountEl.textContent = `${filteredEntries.length} 篇`;
 
@@ -194,7 +168,6 @@ function renderList() {
     entryListEl.appendChild(item);
   });
 
-  // 高亮当前
   highlightActive();
 }
 
@@ -202,7 +175,6 @@ function renderList() {
  * 高亮当前选中项
  */
 function highlightActive() {
-  if (!entryListEl) return;
   const children = entryListEl.querySelectorAll(".entry-item");
   children.forEach((el) => {
     if (el.dataset.id === currentId) {
@@ -215,11 +187,8 @@ function highlightActive() {
 
 /**
  * 渲染正文
- * @param {DiaryEntry|null} entry
  */
 function renderEntry(entry) {
-  if (!entryTitleEl || !entryBodyEl || !entryMetaEl) return;
-
   if (!entry) {
     entryTitleEl.textContent = "未找到日记";
     entryMetaEl.textContent = "";
@@ -242,8 +211,6 @@ function renderEntry(entry) {
 
 /**
  * 选择某一篇
- * @param {string} id
- * @param {boolean} updateHash
  */
 function selectEntry(id, updateHash = false) {
   currentId = id;
@@ -270,7 +237,6 @@ function selectFromHash() {
 // ================== 初始化 ==================
 
 async function init() {
-  // 主题
   const savedTheme = loadTheme();
   if (savedTheme === "dark") {
     document.body.classList.add("dark");
@@ -280,18 +246,15 @@ async function init() {
     themeToggleEl.textContent = "🌙";
   }
 
-  // 绑定主题按钮
   themeToggleEl.addEventListener("click", () => {
     const isDark = document.body.classList.toggle("dark");
     themeToggleEl.textContent = isDark ? "☀️" : "🌙";
     saveTheme(isDark ? "dark" : "light");
   });
 
-  // 搜索
   searchInputEl.addEventListener("input", () => {
     filterEntries(searchInputEl.value.trim());
     renderList();
-    // 搜索后如果当前不在结果中，自动选第一篇
     if (!filteredEntries.some((e) => e.id === currentId)) {
       if (filteredEntries.length > 0) {
         selectEntry(filteredEntries[0].id, true);
@@ -301,7 +264,6 @@ async function init() {
     }
   });
 
-  // 拉取数据
   try {
     const res = await fetch(GIST_URL, { cache: "no-store" });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -312,7 +274,6 @@ async function init() {
 
     renderList();
 
-    // 优先根据 hash 定位，否则默认第一篇
     if (!selectFromHash()) {
       if (allEntries.length > 0) {
         selectEntry(allEntries[0].id, true);
@@ -332,7 +293,6 @@ async function init() {
     });
   }
 
-  // 监听 hash 变化（支持前进/后退）
   window.addEventListener("hashchange", () => {
     selectFromHash();
   });
