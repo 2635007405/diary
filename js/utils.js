@@ -6,8 +6,8 @@ const GIST_URL =
 // 普通日记标题
 const DATE_REGEX = /(\d{4}年\d{1,2}月\d{1,2}日（[^）]+）)/g;
 
-// 特殊章节标题（可继续扩展）
-const SPECIAL_SECTION_REGEX = /^启示录\s*$/m;
+// “启示录”章节标题（允许前面有空格）
+const SPECIAL_SECTION_REGEX = /^\s*启示录\s*$/m;
 
 // ================== 状态 ==================
 
@@ -25,25 +25,29 @@ let currentId = null;
 function parseDiary(text) {
   const entries = [];
 
-  // 先检查是否存在“启示录”
+  // 先从全文中切出“启示录”部分（如果有）
   const specialMatch = text.match(SPECIAL_SECTION_REGEX);
 
-  let mainText = text;
-  let apocalypseText = null;
+  let mainText = text;      // 普通日记所在部分
+  let apocalypseText = null; // 启示录正文
 
   if (specialMatch) {
-    const pos = text.indexOf(specialMatch[0]);
-    apocalypseText = text.slice(pos + specialMatch[0].length).trim();
+    const header = specialMatch[0];
+    const pos = text.indexOf(header);
+    // 启示录正文 = 标题行之后的所有内容
+    apocalypseText = text.slice(pos + header.length).trim();
+    // 普通日记正文 = 启示录标题之前的所有内容
     mainText = text.slice(0, pos).trim();
   }
 
-  // 解析普通日记（不包含启示录部分）
+  // ===== 解析普通日记（不包含启示录） =====
   const markers = [];
   let match;
   while ((match = DATE_REGEX.exec(mainText)) !== null) {
     markers.push({ title: match[1], index: match.index });
   }
 
+  // 如果既没有日期，也没有启示录，就整篇当一条
   if (markers.length === 0 && !apocalypseText) {
     entries.push({
       id: "only",
@@ -69,7 +73,7 @@ function parseDiary(text) {
     });
   }
 
-  // 最后追加“启示录”作为独立章节
+  // ===== 追加“启示录”作为独立章节 =====
   if (apocalypseText) {
     entries.push({
       id: "apocalypse",
