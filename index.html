@@ -5,220 +5,210 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>如我所书</title>
     <link rel="stylesheet" href="css/themes.css">
-    <style>
-        :root {
-            --max-width: 800px;
-            --primary-color: #5d4037;
-            --secondary-color: #8d6e63;
-            --paper-texture: repeating-linear-gradient(
-                0deg,
-                #fff5e6 0px,
-                #fff5e6 24px,
-                #ffeedd 25px
-            );
-        }
+<style>
+    :root {
+        --max-width: 900px;
+        --primary-color: #d0c8ff; /* 星云紫 */
+        --secondary-color: #a89bff;
+    }
 
-        body {
-            font-family: 'SimSun', STSong, serif;
-            line-height: 1.8;
-            max-width: var(--max-width);
-            margin: 0 auto;
-            padding: 40px 20px;
-            color: #4e342e;
-            background: var(--paper-texture),
-                        linear-gradient(to bottom right, #fff5e6, #ffe4c4);
-            background-blend-mode: multiply;
-            box-shadow: 0 0 20px rgba(0,0,0,0.1) inset;
-            transition: background 0.3s, color 0.3s;
-        }
+    /* ====== 全局深空星云背景 ====== */
+    body {
+        font-family: 'SimSun', STSong, serif;
+        line-height: 1.8;
+        max-width: var(--max-width);
+        margin: 0 auto;
+        padding: 40px 20px;
 
-        /* 侧边栏样式（桌面） */
+        color: #eaeaea;
+
+        background: url("https://images.unsplash.com/photo-1444703686981-a3abbc4d4fe3?auto=format&fit=crop&w=1920&q=80")
+            no-repeat center center fixed;
+        background-size: cover;
+
+        transition: background 0.3s, color 0.3s;
+    }
+
+    /* ====== 侧边栏毛玻璃 ====== */
+    #sidebar {
+        position: fixed;
+        left: 20px;
+        top: 50%;
+        transform: translateY(-50%);
+        background: rgba(0, 0, 0, 0.35);
+        backdrop-filter: blur(14px);
+        padding: 15px;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.4);
+        max-height: 80vh;
+        overflow-y: auto;
+        width: 200px;
+        z-index: 1000;
+        transition: opacity 0.3s, transform 0.3s;
+    }
+
+    #search-box {
+        width: 100%;
+        padding: 8px;
+        margin-bottom: 10px;
+        border: 1px solid rgba(255,255,255,0.3);
+        background: rgba(255,255,255,0.1);
+        color: #fff;
+        border-radius: 4px;
+    }
+
+    .toc-item {
+        cursor: pointer;
+        padding: 5px;
+        margin: 3px 0;
+        border-left: 3px solid transparent;
+        transition: all 0.2s;
+        color: #eee;
+    }
+
+    .toc-item:hover {
+        border-color: #ffffff;
+        background: rgba(255, 255, 255, 0.1);
+    }
+
+    /* ====== 移动端目录按钮 ====== */
+    #mobile-toc-toggle {
+        position: fixed;
+        bottom: 20px;
+        left: 20px;
+        width: 50px;
+        height: 50px;
+        background: rgba(255,255,255,0.2);
+        color: white;
+        border: none;
+        border-radius: 50%;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.4);
+        z-index: 1003;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.2em;
+        backdrop-filter: blur(6px);
+    }
+
+    /* ====== 内容区毛玻璃卡片 ====== */
+    .chapter-container {
+        margin: 40px 0;
+        padding: 30px;
+        background: rgba(255, 255, 255, 0.08);
+        backdrop-filter: blur(12px);
+        border-radius: 12px;
+        position: relative;
+        border: 1px solid rgba(255,255,255,0.15);
+        box-shadow:
+            0 1px 4px rgba(0,0,0,0.2),
+            0 10px 20px -10px rgba(0,0,0,0.4);
+    }
+
+    .chapter-title {
+        font-size: 1.8em;
+        text-align: center;
+        margin: 30px 0;
+        font-weight: 700;
+        letter-spacing: 2px;
+        color: #eae6ff;
+        text-shadow: 0 0 8px rgba(0,0,0,0.6);
+    }
+
+    .date {
+        margin: 25px 0 10px;
+        padding-left: 3em;
+        font-weight: 600;
+        color: #dcd6ff;
+        position: relative;
+        font-style: italic;
+        text-shadow: 0 0 6px rgba(0,0,0,0.5);
+    }
+
+    .date::before {
+        content: "✦";
+        position: absolute;
+        left: 1em;
+        color: #b8aaff;
+        font-size: 1.2em;
+    }
+
+    .content {
+        white-space: pre-wrap;
+        margin-bottom: 1.5em;
+        border-left: 2px solid rgba(255,255,255,0.2);
+        padding-left: 1.5em;
+        color: #f0f0f0;
+    }
+
+    .supplement {
+        background: rgba(255, 255, 255, 0.08);
+        border-left: 4px solid rgba(200,180,255,0.6);
+        margin: 1.5em 0;
+        padding: 1em 2em;
+        color: #e8e4ff;
+        border-radius: 0 5px 5px 0;
+        box-shadow: 2px 2px 5px rgba(0,0,0,0.2);
+        width: calc(100% - 4em);
+        margin-left: 2em;
+        margin-right: 2em;
+    }
+
+    /* ====== 移动端适配 ====== */
+    @media (max-width: 840px) {
         #sidebar {
+            background: rgba(0,0,0,0.55);
+            backdrop-filter: blur(18px);
+        }
+
+        #mobile-overlay {
             position: fixed;
-            left: 20px;
-            top: 50%;
-            transform: translateY(-50%);
-            background: rgba(255,255,255,0.9);
-            padding: 15px;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            max-height: 80vh;
-            overflow-y: auto;
-            width: 200px;
-            z-index: 1000;
-            transition: opacity 0.3s, transform 0.3s;
+            inset: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 1001;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s ease;
         }
 
-        #search-box {
-            width: 100%;
-            padding: 8px;
-            margin-bottom: 10px;
-            border: 1px solid var(--secondary-color);
-            border-radius: 4px;
+        #mobile-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
         }
 
-        .toc-item {
-            cursor: pointer;
-            padding: 5px;
-            margin: 3px 0;
-            border-left: 3px solid transparent;
-            transition: all 0.2s;
-        }
-
-        .toc-item:hover {
-            border-color: var(--primary-color);
-            background: rgba(93, 64, 55, 0.05);
-        }
-
-        /* 移动端目录按钮 */
         #mobile-toc-toggle {
-            position: fixed;
-            bottom: 20px;
-            left: 20px;
-            width: 50px;
-            height: 50px;
-            background: var(--primary-color);
-            color: white;
-            border: none;
-            border-radius: 50%;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
-            z-index: 1003;
-            display: none;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.2em;
+            display: flex;
         }
 
-        .chapter-container {
-            margin: 40px 0;
-            padding: 30px;
-            background: rgba(255, 255, 255, 0.85);
-            border-radius: 3px;
-            position: relative;
-            border: 1px solid #e0d7d0;
-            box-shadow:
-                0 1px 4px rgba(0,0,0,0.04),
-                0 10px 20px -10px rgba(0,0,0,0.1);
-        }
-
-        .chapter-title {
-            font-size: 1.8em;
-            text-align: center;
-            margin: 30px 0;
-            font-weight: 700;
-            letter-spacing: 2px;
-            color: var(--primary-color);
-            position: relative;
-            text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
-        }
-
-        .date {
-            margin: 25px 0 10px;
-            padding-left: 3em;
-            font-weight: 600;
-            color: #5d4037;
-            position: relative;
-            font-style: italic;
-        }
-
-        .date::before {
-            content: "✎";
+        .close-toc {
             position: absolute;
-            left: 1em;
-            color: var(--secondary-color);
-            font-size: 1.2em;
+            top: 15px;
+            right: 15px;
+            background: none;
+            border: none;
+            font-size: 1.5em;
+            color: #fff;
         }
 
-        .content {
-            white-space: pre-wrap;
-            margin-bottom: 1.5em;
-            border-left: 2px solid #d7ccc8;
-            padding-left: 1.5em;
+        body.sidebar-open {
+            overflow: hidden;
+            touch-action: none;
         }
 
         .supplement {
-            background: rgba(255, 245, 238, 0.8);
-            border-left: 4px solid #bcaaa4;
-            margin: 1.5em 0;
-            padding: 1em 2em;
-            color: #6d4c41;
-            border-radius: 0 5px 5px 0;
-            box-shadow: 2px 2px 5px rgba(0,0,0,0.05);
-            width: calc(100% - 4em);
-            margin-left: 2em;
-            margin-right: 2em;
+            width: calc(100% - 2em);
+            margin-left: 1em;
+            margin-right: 1em;
+            padding: 1em;
         }
+    }
 
-        @media (max-width: 840px) {
-            /* 侧边栏改为滑入面板 */
-            #sidebar {
-                position: fixed;
-                top: 0;
-                left: 0;
-                width: 85vw;
-                max-width: 420px;
-                height: 100vh;
-                background: rgba(255,255,255,0.98);
-                z-index: 1002;
-                border-radius: 0;
-                padding: 20px;
-                overflow-y: auto;
-                transform: translateX(-100%);
-                transition: transform 0.3s ease;
-                box-shadow: 4px 0 12px rgba(0,0,0,0.15);
-            }
+    @keyframes slideIn {
+        from { transform: translateX(-100%); }
+        to { transform: translateX(0); }
+    }
+</style>
 
-            #sidebar.active {
-                transform: translateX(0);
-            }
-
-            #mobile-overlay {
-                position: fixed;
-                inset: 0;
-                background: rgba(0,0,0,0.35);
-                z-index: 1001;
-                opacity: 0;
-                pointer-events: none;
-                transition: opacity 0.2s ease;
-            }
-
-            #mobile-overlay.active {
-                opacity: 1;
-                pointer-events: auto;
-            }
-
-            #mobile-toc-toggle {
-                display: flex;
-            }
-
-            .close-toc {
-                position: absolute;
-                top: 15px;
-                right: 15px;
-                background: none;
-                border: none;
-                font-size: 1.5em;
-                color: var(--primary-color);
-            }
-
-            body.sidebar-open {
-                overflow: hidden;
-                touch-action: none;
-            }
-
-            .supplement {
-                width: calc(100% - 2em);
-                margin-left: 1em;
-                margin-right: 1em;
-                padding: 1em;
-            }
-        }
-
-        @keyframes slideIn {
-            from { transform: translateX(-100%); }
-            to { transform: translateX(0); }
-        }
-    </style>
 </head>
 <body>
     <!-- 侧边栏 -->
