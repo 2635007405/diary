@@ -164,53 +164,85 @@
     }
 
     /* ====== 移动端适配 ====== */
-    @media (max-width: 840px) {
-        #sidebar {
-            background: rgba(0,0,0,0.6);
-            backdrop-filter: blur(18px);
-        }
+/* ====== 移动端适配（修复侧边栏遮挡问题） ====== */
+@media (max-width: 840px) {
 
-        #mobile-overlay {
-            position: fixed;
-            inset: 0;
-            background: rgba(0,0,0,0.5);
-            z-index: 1001;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.2s ease;
-        }
+    /* 侧边栏：默认完全隐藏在屏幕外，不占位、不挡文字 */
+    #sidebar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 80vw;
+        max-width: 360px;
+        height: 100vh;
 
-        #mobile-overlay.active {
-            opacity: 1;
-            pointer-events: auto;
-        }
+        background: rgba(0,0,0,0.6);
+        backdrop-filter: blur(18px);
 
-        #mobile-toc-toggle {
-            display: flex;
-        }
+        transform: translateX(-100%);   /* 默认隐藏 */
+        transition: transform 0.3s ease;
 
-        .close-toc {
-            position: absolute;
-            top: 15px;
-            right: 15px;
-            background: none;
-            border: none;
-            font-size: 1.5em;
-            color: #fff;
-        }
+        z-index: 1002;
+        padding: 20px;
+        overflow-y: auto;
+        border-radius: 0;
+        box-shadow: 4px 0 12px rgba(0,0,0,0.4);
 
-        body.sidebar-open {
-            overflow: hidden;
-            touch-action: none;
-        }
-
-        .supplement {
-            width: calc(100% - 2em);
-            margin-left: 1em;
-            margin-right: 1em;
-            padding: 1em;
-        }
+        /* 关键：关闭时不挡住正文 */
+        pointer-events: none;
     }
+
+    /* 激活时滑入并可点击 */
+    #sidebar.active {
+        transform: translateX(0);
+        pointer-events: auto;
+    }
+
+    /* 遮罩层：负责拦截点击 */
+    #mobile-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(0,0,0,0.5);
+        z-index: 1001;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.2s ease;
+    }
+
+    #mobile-overlay.active {
+        opacity: 1;
+        pointer-events: auto;
+    }
+
+    /* 手机端目录按钮 */
+    #mobile-toc-toggle {
+        display: flex;
+    }
+
+    .close-toc {
+        position: absolute;
+        top: 15px;
+        right: 15px;
+        background: none;
+        border: none;
+        font-size: 1.5em;
+        color: #fff;
+    }
+
+    /* 防止侧边栏打开时页面滚动 */
+    body.sidebar-open {
+        overflow: hidden;
+        touch-action: none;
+    }
+
+    .supplement {
+        width: calc(100% - 2em);
+        margin-left: 1em;
+        margin-right: 1em;
+        padding: 1em;
+    }
+}
+
 </style>
 
 
