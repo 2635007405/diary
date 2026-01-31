@@ -1,8 +1,10 @@
-
 function generateTOC(tocData) {
     const container = document.getElementById('toc-container');
+
     container.innerHTML = tocData.map(item => `
-        <div class="toc-item" data-id="${item.id}">${item.text}</div>
+        <div class="toc-item ${item.isRevelationChild ? 'revelation-child' : ''}" data-id="${item.id}">
+            ${item.text}
+        </div>
     `).join('');
 
     document.querySelectorAll('.toc-item').forEach(item => {
@@ -11,10 +13,11 @@ function generateTOC(tocData) {
             if (target) {
                 target.scrollIntoView({ behavior: 'smooth', block: 'center' });
             }
-            // 轻微延迟，避免滚动与关闭动画冲突
+
             const sidebar = document.getElementById('sidebar');
             const overlay = document.getElementById('mobile-overlay');
             document.body.classList.remove('sidebar-open');
+
             setTimeout(() => {
                 sidebar.classList.remove('active');
                 overlay.classList.remove('active');
@@ -22,6 +25,7 @@ function generateTOC(tocData) {
         });
     });
 }
+
 
 function setupSearch() {
     const searchBox = document.getElementById('search-box');
