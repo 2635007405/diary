@@ -1,3 +1,4 @@
+
 function generateTOC(tocData) {
     const container = document.getElementById('toc-container');
     container.innerHTML = tocData.map(item => `
@@ -55,6 +56,31 @@ function setupSearch() {
     }
 }
 
+function initTheme() {
+    const themeToggle = document.createElement('button');
+    themeToggle.id = 'theme-toggle';
+    themeToggle.textContent = '🌙 夜间模式';
+    document.body.prepend(themeToggle);
+
+    themeToggle.addEventListener('click', () => {
+        // 只切换文字颜色，不再切换背景
+        document.body.classList.toggle('night-mode');
+
+        themeToggle.textContent = document.body.classList.contains('night-mode')
+            ? '☀️ 日间模式'
+            : '🌙 夜间模式';
+
+        localStorage.setItem(
+            'theme',
+            document.body.classList.contains('night-mode') ? 'night' : 'day'
+        );
+    });
+
+    // 初始化时恢复主题（同样不改变背景）
+    if (localStorage.getItem('theme') === 'night') {
+        document.body.classList.add('night-mode');
+        themeToggle.textContent = '☀️ 日间模式';
+    }
 
     // 返回顶部按钮
     const backButton = document.createElement('button');
@@ -70,4 +96,3 @@ function setupSearch() {
         window.scrollTo({ top: 0, behavior: 'smooth' });
     });
 }
-
