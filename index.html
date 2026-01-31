@@ -242,6 +242,70 @@
         padding: 1em;
     }
 }
+/* ===== 启示录整体模块 ===== */
+.revelation-block {
+    margin: 60px 0;
+    padding: 40px 30px;
+    border-radius: 18px;
+    background: rgba(0,0,0,0.55);
+    backdrop-filter: blur(14px);
+    border: 1px solid rgba(200,180,255,0.5);
+    box-shadow: 0 0 25px rgba(200,180,255,0.4);
+    position: relative;
+}
+
+/* ===== 启示录标题 ===== */
+.revelation-title {
+    font-size: 2.2em;
+    text-align: center;
+    margin-bottom: 30px;
+    color: #eae6ff;
+    text-shadow: 0 0 12px rgba(200,180,255,0.8);
+    letter-spacing: 4px;
+}
+
+/* ===== 启示录日期（星光闪动） ===== */
+.revelation-date {
+    margin: 20px 0 10px;
+    font-size: 1.2em;
+    color: #f0ecff;
+    position: relative;
+    text-shadow: 0 0 8px rgba(200,180,255,0.8);
+}
+
+.revelation-date::after {
+    content: "✦";
+    position: absolute;
+    right: -1.2em;
+    top: 0.1em;
+    font-size: 0.9em;
+    color: #dcd6ff;
+    opacity: 0.6;
+    animation: starBlink 2.8s ease-in-out infinite;
+}
+
+/* ===== 启示录正文 ===== */
+.revelation-text {
+    white-space: pre-wrap;
+    margin-bottom: 1.5em;
+    padding-left: 1.2em;
+    border-left: 2px solid rgba(200,180,255,0.4);
+    color: #f8f8ff;
+    line-height: 1.9;
+}
+
+/* ===== 启示录内容容器（可选） ===== */
+.revelation-body {
+    margin-top: 20px;
+}
+
+/* ===== 星光闪动动画 ===== */
+@keyframes starBlink {
+    0%   { opacity: 0.2; transform: scale(0.9); }
+    50%  { opacity: 1;   transform: scale(1.2); }
+    100% { opacity: 0.2; transform: scale(0.9); }
+}
+
 
 </style>
 
@@ -338,43 +402,55 @@ class DiaryParser {
     /* ============================
        特殊章节：启示录
     ============================ */
-    handleSpecialChapter(line) {
-        if (this.currentChapter) {
-            if (this.currentContentOpen) this.output.push('</div>');
-            this.output.push(`<div class="chapter-title">${this.currentChapter}·完</div>`);
-        }
-
-        this.currentChapter = line;
-
-        const chapterId = `chapter-${this.entryCount++}`;
-        this.tocData.push({ text: line, id: chapterId });
-
-        this.output.push(
-            `<div class="chapter-title" id="${chapterId}">${line}</div>`,
-            `<div class="chapter-content">`
-        );
-        this.currentContentOpen = true;
+handleSpecialChapter(line) {
+    if (this.currentChapter) {
+        if (this.currentContentOpen) this.output.push('</div>');
+        this.output.push(`<div class="chapter-title">${this.currentChapter}·完</div>`);
     }
+
+    this.currentChapter = line;
+
+    const chapterId = `chapter-${this.entryCount++}`;
+    this.tocData.push({ text: line, id: chapterId });
+
+    // 启示录专属容器
+    this.output.push(
+        `<div class="revelation-block">`,
+        `<div class="revelation-title" id="${chapterId}">${line}</div>`,
+        `<div class="revelation-body">`
+    );
+
+    this.currentContentOpen = true;
+}
+
 
     /* ============================
        日期
     ============================ */
-    handleDate(line) {
-        if (line.includes("2024年12月19日11:48分")) return;
+handleDate(line) {
+    if (line.includes("2024年12月19日11:48分")) return;
 
-        const asterisk = (line.match(/\*+/g) || []).join('');
-        if (this.currentContentOpen) this.output.push('</div>');
+    const isRevelation = this.currentChapter === '启示录';
 
-        const entryId = `entry-${this.entryCount++}`;
+    const asterisk = (line.match(/\*+/g) || []).join('');
+    if (this.currentContentOpen) this.output.push('</div>');
+
+    const entryId = `entry-${this.entryCount++}`;
+
+    // 启示录内部日期不加入 TOC
+    if (!isRevelation) {
         this.tocData.push({ text: line.replace(/\*+/g, ''), id: entryId });
-
-        this.output.push(
-            `<div class="date" id="${entryId}">${line.replace(/\*+/g, '')}`,
-            asterisk ? `<span class="asterisk">${asterisk}</span>` : '',
-            '</div><div class="content">'
-        );
-        this.currentContentOpen = true;
     }
+
+    this.output.push(
+        `<div class="${isRevelation ? 'revelation-date' : 'date'}" id="${entryId}">${line.replace(/\*+/g, '')}`,
+        asterisk ? `<span class="asterisk">${asterisk}</span>` : '',
+        `</div><div class="${isRevelation ? 'revelation-text' : 'content'}">`
+    );
+
+    this.currentContentOpen = true;
+}
+
 
     handleSupplement(line) {
         if (this.currentContentOpen) this.output.push('</div>');
