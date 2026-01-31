@@ -305,6 +305,22 @@
     50%  { opacity: 1;   transform: scale(1.2); }
     100% { opacity: 0.2; transform: scale(0.9); }
 }
+/* ===== 启示录子目录（缩进 + 星光） ===== */
+.toc-item.revelation-child {
+    padding-left: 20px;
+    font-size: 0.9em;
+    opacity: 0.85;
+    position: relative;
+}
+
+.toc-item.revelation-child::before {
+    content: "✧";
+    position: absolute;
+    left: 5px;
+    color: #dcd6ff;
+    font-size: 0.8em;
+    opacity: 0.8;
+}
 
 
 </style>
@@ -437,10 +453,22 @@ handleDate(line) {
 
     const entryId = `entry-${this.entryCount++}`;
 
-    // 启示录内部日期不加入 TOC
-    if (!isRevelation) {
-        this.tocData.push({ text: line.replace(/\*+/g, ''), id: entryId });
-    }
+if (isRevelation) {
+    // 启示录内部日期 → 子目录
+    this.tocData.push({
+        text: line.replace(/\*+/g, ''),
+        id: entryId,
+        isRevelationChild: true
+    });
+} else {
+    // 普通日记日期 → 正常目录
+    this.tocData.push({
+        text: line.replace(/\*+/g, ''),
+        id: entryId,
+        isRevelationChild: false
+    });
+}
+
 
     this.output.push(
         `<div class="${isRevelation ? 'revelation-date' : 'date'}" id="${entryId}">${line.replace(/\*+/g, '')}`,
