@@ -170,6 +170,7 @@ function setupSearch() {
 }
 
 function initTheme() {
+    setupSwipe();
     // 直接不创建模式切换按钮
     // 不再读取 localStorage 的 theme
     // 不再添加 night-mode 类
@@ -186,6 +187,35 @@ function initTheme() {
 
     backButton.addEventListener('click', () => {
         window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+}
+// ===== 移动端手势：右滑打开目录 / 左滑关闭目录 =====
+function setupSwipe() {
+    const sidebar = document.getElementById('sidebar');
+    const threshold = 60; // 触发滑动的最小距离
+    let startX = 0;
+    let currentX = 0;
+
+    document.addEventListener('touchstart', (e) => {
+        startX = e.touches[0].clientX;
+    });
+
+    document.addEventListener('touchmove', (e) => {
+        currentX = e.touches[0].clientX;
+    });
+
+    document.addEventListener('touchend', () => {
+        const delta = currentX - startX;
+
+        // 右滑：打开目录
+        if (delta > threshold) {
+            sidebar.classList.add('sidebar-open');
+        }
+
+        // 左滑：关闭目录
+        if (delta < -threshold) {
+            sidebar.classList.remove('sidebar-open');
+        }
     });
 }
 
