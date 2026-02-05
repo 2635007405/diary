@@ -78,7 +78,7 @@ function createRipple(e, item) {
         target.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
 });
-
+});
 
     // 启示录折叠逻辑
     const header = document.querySelector('.revelation-header');
