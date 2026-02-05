@@ -403,31 +403,28 @@
     opacity: 1;
     transform: scale(1.2);
 }
-/* ===== 目录 hover 星尘粒子效果 ===== */
+/* ===== 星尘粒子喷射 ===== */
 .toc-item {
     position: relative;
     overflow: visible;
 }
 
-.toc-item::after {
-    content: "";
+.star-particle {
     position: absolute;
-    top: 50%;
-    left: 50%;
-    width: 6px;
-    height: 6px;
+    width: 4px;
+    height: 4px;
     background: radial-gradient(circle, rgba(255,255,255,0.9), transparent 70%);
     border-radius: 50%;
-    opacity: 0;
-    transform: translate(-50%, -50%) scale(0.4);
     pointer-events: none;
-    transition: opacity 0.25s ease, transform 0.25s ease;
+    opacity: 1;
+    animation: particle-fade 0.8s ease-out forwards;
 }
 
-.toc-item:hover::after {
-    opacity: 1;
-    transform: translate(-50%, -50%) scale(1.4);
+@keyframes particle-fade {
+    0%   { opacity: 1; transform: scale(1); }
+    100% { opacity: 0; transform: scale(0.3); }
 }
+
 
 
 </style>
