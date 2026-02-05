@@ -64,11 +64,33 @@ function generateTOC(tocData) {
     // 启示录折叠逻辑
     const header = document.querySelector('.revelation-header');
     const children = document.querySelector('.revelation-children');
+    if (!savedState) {
+    children.style.height = children.scrollHeight + 'px';
+} else {
+    children.style.height = '0px';
+}
+
     const arrow = header.querySelector('.arrow');
 
     header.addEventListener('click', () => {
         const collapsed = children.style.display === 'none';
-        children.style.display = collapsed ? 'block' : 'none';
+        if (collapsed) {
+    children.style.display = 'block';
+    const fullHeight = children.scrollHeight + 'px';
+    children.style.height = '0px';
+    requestAnimationFrame(() => {
+        children.style.height = fullHeight;
+    });
+} else {
+    children.style.height = children.scrollHeight + 'px';
+    requestAnimationFrame(() => {
+        children.style.height = '0px';
+    });
+    setTimeout(() => {
+        children.style.display = 'none';
+    }, 350);
+}
+
         arrow.textContent = collapsed ? '✦▼' : '✦▶';
         localStorage.setItem('revelationCollapsed', !collapsed);
     });
