@@ -581,10 +581,34 @@
     border-radius: 2px;
     pointer-events: none;
 }
-
-
-
-
+/* ===== 全局字体优化 ===== */
+body {
+    font-family: "Noto Serif SC", "Inter", serif;
+    font-weight: 400;
+    letter-spacing: 0.3px;
+}
+/* ===== 全局抗锯齿 ===== */
+body {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+/* ===== 深空阅读区域聚焦 ===== */
+#diary-container {
+    padding: 0 20px;
+    max-width: 780px;
+    margin: auto;
+    background: linear-gradient(
+        to right,
+        rgba(0,0,0,0) 0%,
+        rgba(255,255,255,0.03) 50%,
+        rgba(0,0,0,0) 100%
+    );
+    border-radius: 8px;
+}
+/* ===== 段落视觉分组 ===== */
+.content p + p {
+    margin-top: 18px;
+}
 
 
 
