@@ -4,32 +4,52 @@ function generateTOC(tocData) {
     // 读取折叠状态
     const savedState = localStorage.getItem('revelationCollapsed') === 'true';
 
-    // 构建目录 HTML
-    container.innerHTML = tocData.map(item => {
+    let html = "";
+    let revelationOpen = false;
+
+    tocData.forEach(item => {
+        // 启示录标题
         if (item.text === '启示录') {
-            return `
+            html += `
                 <div class="toc-item revelation-header" data-id="${item.id}">
                     <span class="arrow">${savedState ? '✦▶' : '✦▼'}</span>
                     ${item.text}
                 </div>
                 <div class="revelation-children" style="display:${savedState ? 'none' : 'block'};">
             `;
+            revelationOpen = true;
+            return;
         }
 
+        // 启示录子目录
         if (item.isRevelationChild) {
-            return `
+            html += `
                 <div class="toc-item revelation-child" data-id="${item.id}">
                     ${item.text}
                 </div>
             `;
+            return;
         }
 
-        return `
+        // 普通目录项
+        if (revelationOpen) {
+            html += `</div>`; // 关闭 revelation-children
+            revelationOpen = false;
+        }
+
+        html += `
             <div class="toc-item" data-id="${item.id}">
                 ${item.text}
             </div>
         `;
-    }).join('') + '</div>';
+    });
+
+    // 如果启示录是最后一项，补上关闭标签
+    if (revelationOpen) {
+        html += `</div>`;
+    }
+
+    container.innerHTML = html;
 
     // 点击跳转
     document.querySelectorAll('.toc-item').forEach(item => {
@@ -50,12 +70,10 @@ function generateTOC(tocData) {
         const collapsed = children.style.display === 'none';
         children.style.display = collapsed ? 'block' : 'none';
         arrow.textContent = collapsed ? '✦▼' : '✦▶';
-
-        // 保存状态
         localStorage.setItem('revelationCollapsed', !collapsed);
     });
 
-    // scroll spy（自动高亮）
+    // scroll spy
     const observer = new IntersectionObserver(entries => {
         entries.forEach(entry => {
             const id = entry.target.id;
