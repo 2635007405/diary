@@ -73,6 +73,8 @@ function generateTOC(tocData) {
     const arrow = header.querySelector('.arrow');
 
     header.addEventListener('click', () => {
+        header.classList.add('pulse');
+setTimeout(() => header.classList.remove('pulse'), 400);
         const collapsed = children.style.display === 'none';
         if (collapsed) {
     children.style.display = 'block';
