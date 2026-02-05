@@ -483,6 +483,24 @@
     overflow: hidden;
     transition: height 0.35s ease;
 }
+/* ===== Scroll Spy 星光连线 ===== */
+#toc-line-svg {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    pointer-events: none;
+    z-index: 2;
+}
+
+.toc-line {
+    stroke: rgba(255, 255, 255, 0.6);
+    stroke-width: 1.5;
+    stroke-linecap: round;
+    filter: drop-shadow(0 0 4px rgba(255,255,255,0.8));
+    transition: d 0.25s ease, opacity 0.25s ease;
+}
 
 
 
@@ -508,7 +526,7 @@
     <div id="diary-container" class="chapter-container">
         <div class="loading">正在加载日记内容...</div>
     </div>
-
+    <svg id="toc-line-svg"></svg>
     <script src="js/utils.js"></script>
     <script>
         // 远程数据源
@@ -723,7 +741,7 @@ if (isRevelation) {
                     '<div class="error">日记加载失败，请稍后重试</div>';
             }
         }
-
+        initTocLine();
         initDiary();
     </script>
 </body>
