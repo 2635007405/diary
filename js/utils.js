@@ -1,30 +1,78 @@
 function generateTOC(tocData) {
     const container = document.getElementById('toc-container');
 
-    container.innerHTML = tocData.map(item => `
-        <div class="toc-item ${item.isRevelationChild ? 'revelation-child' : ''}" data-id="${item.id}">
-            ${item.text}
-        </div>
-    `).join('');
+    // 读取折叠状态
+    const savedState = localStorage.getItem('revelationCollapsed') === 'true';
 
+    // 构建目录 HTML
+    container.innerHTML = tocData.map(item => {
+        if (item.text === '启示录') {
+            return `
+                <div class="toc-item revelation-header" data-id="${item.id}">
+                    <span class="arrow">${savedState ? '✦▶' : '✦▼'}</span>
+                    ${item.text}
+                </div>
+                <div class="revelation-children" style="display:${savedState ? 'none' : 'block'};">
+            `;
+        }
+
+        if (item.isRevelationChild) {
+            return `
+                <div class="toc-item revelation-child" data-id="${item.id}">
+                    ${item.text}
+                </div>
+            `;
+        }
+
+        return `
+            <div class="toc-item" data-id="${item.id}">
+                ${item.text}
+            </div>
+        `;
+    }).join('') + '</div>';
+
+    // 点击跳转
     document.querySelectorAll('.toc-item').forEach(item => {
         item.addEventListener('click', () => {
             const target = document.getElementById(item.dataset.id);
             if (target) {
                 target.scrollIntoView({ behavior: 'smooth', block: 'center' });
             }
-
-            const sidebar = document.getElementById('sidebar');
-            const overlay = document.getElementById('mobile-overlay');
-            document.body.classList.remove('sidebar-open');
-
-            setTimeout(() => {
-                sidebar.classList.remove('active');
-                overlay.classList.remove('active');
-            }, 100);
         });
     });
+
+    // 启示录折叠逻辑
+    const header = document.querySelector('.revelation-header');
+    const children = document.querySelector('.revelation-children');
+    const arrow = header.querySelector('.arrow');
+
+    header.addEventListener('click', () => {
+        const collapsed = children.style.display === 'none';
+        children.style.display = collapsed ? 'block' : 'none';
+        arrow.textContent = collapsed ? '✦▼' : '✦▶';
+
+        // 保存状态
+        localStorage.setItem('revelationCollapsed', !collapsed);
+    });
+
+    // scroll spy（自动高亮）
+    const observer = new IntersectionObserver(entries => {
+        entries.forEach(entry => {
+            const id = entry.target.id;
+            const tocItem = document.querySelector(`.toc-item[data-id="${id}"]`);
+            if (entry.isIntersecting && tocItem) {
+                document.querySelectorAll('.toc-item').forEach(i => i.classList.remove('active'));
+                tocItem.classList.add('active');
+            }
+        });
+    }, { threshold: 0.3 });
+
+    tocData.forEach(item => {
+        const el = document.getElementById(item.id);
+        if (el) observer.observe(el);
+    });
 }
+
 
 
 function setupSearch() {
