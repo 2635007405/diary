@@ -381,6 +381,28 @@
     overflow: hidden;
     transition: height 0.35s ease;
 }
+/* ===== 启示录标题星云扩散光晕 ===== */
+.revelation-header {
+    position: relative;
+    overflow: visible;
+}
+
+.revelation-header::after {
+    content: "";
+    position: absolute;
+    inset: -6px;
+    border-radius: 8px;
+    background: radial-gradient(circle, rgba(200,180,255,0.6), transparent 70%);
+    opacity: 0;
+    transform: scale(0.6);
+    transition: opacity 0.4s ease, transform 0.4s ease;
+    pointer-events: none;
+}
+
+.revelation-header.pulse::after {
+    opacity: 1;
+    transform: scale(1.2);
+}
 
 
 </style>
