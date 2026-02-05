@@ -1,4 +1,20 @@
 function generateTOC(tocData) {
+    // ===== 星光波纹效果 =====
+function createRipple(e, item) {
+    const ripple = document.createElement('div');
+    ripple.className = 'toc-ripple';
+
+    const rect = item.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+
+    ripple.style.left = x + 'px';
+    ripple.style.top = y + 'px';
+
+    item.appendChild(ripple);
+
+    setTimeout(() => ripple.remove(), 600);
+}
 
     const container = document.getElementById('toc-container');
 
@@ -54,7 +70,15 @@ function generateTOC(tocData) {
 
     // 点击跳转
     document.querySelectorAll('.toc-item').forEach(item => {
-        item.addEventListener('click', () => {
+        item.addEventListener('click', (e) => {
+    createRipple(e, item);
+
+    const target = document.getElementById(item.dataset.id);
+    if (target) {
+        target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+});
+
             const target = document.getElementById(item.dataset.id);
             if (target) {
                 target.scrollIntoView({ behavior: 'smooth', block: 'center' });
