@@ -146,36 +146,100 @@ header.addEventListener('click', () => {
 
 function setupSearch() {
     const searchBox = document.getElementById('search-box');
+    const countBox = document.getElementById('search-count');
+    const btnPrev = document.getElementById('search-prev');
+    const btnNext = document.getElementById('search-next');
 
-    searchBox.addEventListener('input', (e) => {
-        const keyword = e.target.value.toLowerCase();
-        let found = false;
+    let results = [];
+    let index = -1;
 
-        document.querySelectorAll('.content').forEach(content => {
-            const text = content.textContent.toLowerCase();
-            const isMatch = keyword ? text.includes(keyword) : false;
+    searchBox.addEventListener('input', () => {
+        const keyword = searchBox.value.trim().toLowerCase();
+        clearSearch();
+        results = [];
+        index = -1;
 
-            content.style.backgroundColor = isMatch ? '#fff3e0' : 'transparent';
+        if (!keyword) {
+            countBox.textContent = '';
+            return;
+        }
 
-            if (!found && isMatch) {
-                found = true;
-                content.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                const prev = content.previousElementSibling;
-                if (prev && prev.id) {
-                    highlightTOC(prev.id);
+        const targets = [
+            ...document.querySelectorAll('.date'),
+            ...document.querySelectorAll('.content p')
+        ];
+
+        targets.forEach(el => {
+            const text = el.textContent.toLowerCase();
+            if (text.includes(keyword)) {
+                const html = el.innerHTML;
+                const safe = keyword.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+                const reg = new RegExp(safe, 'gi');
+                el.innerHTML = html.replace(reg, m => `<mark>${m}</mark>`);
+
+                results.push(el);
+
+                const parentDate = el.closest('.content')?.previousElementSibling;
+                if (parentDate && parentDate.id) {
+                    highlightTOC(parentDate.id);
                 }
             }
         });
+
+        if (results.length > 0) {
+            index = 0;
+            scrollToResult();
+        }
+
+        countBox.textContent = `找到 ${results.length} 个结果`;
     });
+
+    btnPrev.addEventListener('click', () => {
+        if (results.length === 0) return;
+        index = (index - 1 + results.length) % results.length;
+        scrollToResult();
+    });
+
+    btnNext.addEventListener('click', () => {
+        if (results.length === 0) return;
+        index = (index + 1) % results.length;
+        scrollToResult();
+    });
+
+    function scrollToResult() {
+        const el = results[index];
+        el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+        results.forEach(r => r.classList.remove('search-focus'));
+        el.classList.add('search-focus');
+    }
+
+    function clearSearch() {
+        document.querySelectorAll('mark').forEach(m => {
+            const parent = m.parentNode;
+            parent.replaceChild(document.createTextNode(m.textContent), m);
+            parent.normalize();
+        });
+
+        document.querySelectorAll('.search-focus').forEach(el => {
+            el.classList.remove('search-focus');
+        });
+
+        document.querySelectorAll('.toc-item').forEach(item => {
+            item.style.background = 'none';
+        });
+    }
 
     function highlightTOC(targetId) {
         document.querySelectorAll('.toc-item').forEach(item => {
-            item.style.background = item.dataset.id === targetId
-                ? 'rgba(93, 64, 55, 0.1)'
-                : 'none';
+            item.style.background =
+                item.dataset.id === targetId
+                    ? 'rgba(255, 230, 180, 0.15)'
+                    : 'none';
         });
     }
 }
+
 
 function initTheme() {
     // 直接不创建模式切换按钮
