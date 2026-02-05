@@ -403,6 +403,31 @@
     opacity: 1;
     transform: scale(1.2);
 }
+/* ===== 目录 hover 星尘粒子效果 ===== */
+.toc-item {
+    position: relative;
+    overflow: visible;
+}
+
+.toc-item::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 6px;
+    height: 6px;
+    background: radial-gradient(circle, rgba(255,255,255,0.9), transparent 70%);
+    border-radius: 50%;
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.4);
+    pointer-events: none;
+    transition: opacity 0.25s ease, transform 0.25s ease;
+}
+
+.toc-item:hover::after {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1.4);
+}
 
 
 </style>
