@@ -420,6 +420,41 @@
     border: 1px solid rgba(200,180,255,0.35);
     box-shadow: 0 0 20px rgba(200,180,255,0.25);
 }
+/* ===== 启示录正文星光流动边框 ===== */
+.revelation-text {
+    position: relative;
+    border: 1px solid rgba(200,180,255,0.25);
+    border-radius: 10px;
+    padding: 16px;
+    overflow: hidden;
+}
+
+.revelation-text::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: 10px;
+    padding: 2px;
+    background: linear-gradient(
+        120deg,
+        rgba(200,180,255,0.6),
+        rgba(120,100,200,0.4),
+        rgba(80,60,160,0.3),
+        rgba(200,180,255,0.6)
+    );
+    background-size: 300% 300%;
+    animation: starflow 6s linear infinite;
+    -webkit-mask: 
+        linear-gradient(#fff 0 0) content-box, 
+        linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+            mask-composite: exclude;
+}
+
+@keyframes starflow {
+    0%   { background-position: 0% 50%; }
+    100% { background-position: 300% 50%; }
+}
 
 
 
