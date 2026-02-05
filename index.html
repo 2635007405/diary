@@ -689,6 +689,11 @@ a:hover,
     box-shadow: 0 0 40px rgba(0, 0, 0, 0.35);
     border-radius: 10px;
 }
+.search-focus {
+    outline: 2px solid rgba(255, 230, 180, 0.5);
+    border-radius: 4px;
+    padding: 2px;
+}
 
 
 
@@ -701,6 +706,12 @@ a:hover,
     <div id="sidebar">
         <button class="close-toc">×</button>
         <input type="text" id="search-box" placeholder="搜索日记...">
+        <div id="search-controls">
+    <span id="search-count"></span>
+    <button id="search-prev">↑</button>
+    <button id="search-next">↓</button>
+</div>
+
         <div id="toc-container"></div>
     </div>
     <!-- 移动端遮罩 -->
