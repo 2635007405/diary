@@ -196,4 +196,22 @@ function initTheme() {
         window.scrollTo({ top: 0, behavior: 'smooth' });
     });
 }
+// ===== 浮动柔光标题栏 =====
+function initFloatingHeader() {
+    const header = document.getElementById('floating-header');
+
+    const observer = new IntersectionObserver(entries => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                header.textContent = entry.target.textContent.trim();
+                header.style.opacity = 1;
+                header.style.transform = 'translateY(0)';
+            }
+        });
+    }, { threshold: 0.1 });
+
+    document.querySelectorAll('.chapter-title').forEach(title => {
+        observer.observe(title);
+    });
+}
 
