@@ -79,12 +79,6 @@ function createRipple(e, item) {
     }
 });
 
-            const target = document.getElementById(item.dataset.id);
-            if (target) {
-                target.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            }
-        });
-    });
 
     // 启示录折叠逻辑
     const header = document.querySelector('.revelation-header');
