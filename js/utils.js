@@ -83,38 +83,46 @@ function createRipple(e, item) {
     // 启示录折叠逻辑
     const header = document.querySelector('.revelation-header');
     const children = document.querySelector('.revelation-children');
-    if (!savedState) {
-    children.style.height = children.scrollHeight + 'px';
-} else {
+if (savedState) {
+    children.classList.add('collapsed');
     children.style.height = '0px';
+} else {
+    children.style.height = 'auto';
 }
+
 
     const arrow = header.querySelector('.arrow');
 
-    header.addEventListener('click', () => {
-        header.classList.add('pulse');
-setTimeout(() => header.classList.remove('pulse'), 400);
-        const collapsed = children.style.display === 'none';
-        if (collapsed) {
-    children.style.display = 'block';
-    const fullHeight = children.scrollHeight + 'px';
-    children.style.height = '0px';
-    requestAnimationFrame(() => {
-        children.style.height = fullHeight;
-    });
-} else {
-    children.style.height = children.scrollHeight + 'px';
-    requestAnimationFrame(() => {
-        children.style.height = '0px';
-    });
-    setTimeout(() => {
-        children.style.display = 'none';
-    }, 350);
-}
+header.addEventListener('click', () => {
+    header.classList.add('pulse');
+    setTimeout(() => header.classList.remove('pulse'), 400);
 
-        arrow.textContent = collapsed ? '✦▼' : '✦▶';
-        localStorage.setItem('revelationCollapsed', !collapsed);
-    });
+    const isCollapsed = children.classList.contains('collapsed');
+
+    if (isCollapsed) {
+        // 展开
+        children.classList.remove('collapsed');
+        const fullHeight = children.scrollHeight + 'px';
+        children.style.height = fullHeight;
+        setTimeout(() => {
+            children.style.height = 'auto';
+        }, 350);
+    } else {
+        // 收起
+        const fullHeight = children.scrollHeight + 'px';
+        children.style.height = fullHeight;
+        requestAnimationFrame(() => {
+            children.style.height = '0px';
+        });
+        setTimeout(() => {
+            children.classList.add('collapsed');
+        }, 350);
+    }
+
+    arrow.textContent = isCollapsed ? '✦▼' : '✦▶';
+    localStorage.setItem('revelationCollapsed', !isCollapsed);
+});
+
 
     // scroll spy
     const observer = new IntersectionObserver(entries => {
