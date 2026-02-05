@@ -178,6 +178,7 @@ function setupSearch() {
 }
 
 function initTheme() {
+    initStarfield();
     // 直接不创建模式切换按钮
     // 不再读取 localStorage 的 theme
     // 不再添加 night-mode 类
@@ -195,5 +196,30 @@ function initTheme() {
     backButton.addEventListener('click', () => {
         window.scrollTo({ top: 0, behavior: 'smooth' });
     });
+}
+// ===== 全局星尘粒子背景 =====
+function initStarfield() {
+    const container = document.getElementById('starfield');
+    const starCount = 80; // 星尘数量，可调
+
+    for (let i = 0; i < starCount; i++) {
+        const star = document.createElement('div');
+        star.className = 'star';
+
+        // 随机位置
+        star.style.left = Math.random() * 100 + 'vw';
+        star.style.top = Math.random() * 100 + 'vh';
+
+        // 随机大小
+        const size = Math.random() * 2 + 1;
+        star.style.width = size + 'px';
+        star.style.height = size + 'px';
+
+        // 随机速度
+        const duration = Math.random() * 10 + 12;
+        star.style.animationDuration = duration + 's';
+
+        container.appendChild(star);
+    }
 }
 
