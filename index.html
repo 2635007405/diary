@@ -514,6 +514,35 @@
     transition: opacity 0.3s ease, transform 0.3s ease;
     transform: translateY(-20px);
 }
+/* ===== 阅读体验增强 ===== */
+
+/* 正文段落行距优化 */
+#diary-container p {
+    line-height: 1.9;
+    margin: 14px 0;
+    font-size: 17px;
+}
+
+/* 标题层级更清晰 */
+#diary-container h2 {
+    margin-top: 40px;
+    margin-bottom: 16px;
+    font-size: 24px;
+    font-weight: bold;
+    color: #ffe9c6;
+    text-shadow: 0 0 6px rgba(255, 230, 180, 0.4);
+}
+
+/* 移动端优化 */
+@media (max-width: 600px) {
+    #diary-container p {
+        font-size: 16px;
+        line-height: 1.85;
+    }
+    #diary-container h2 {
+        font-size: 22px;
+    }
+}
 
 
 
