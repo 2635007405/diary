@@ -1,4 +1,34 @@
 function generateTOC(tocData) {
+    // ===== 星尘粒子喷射效果 =====
+function spawnParticles(target) {
+    const rect = target.getBoundingClientRect();
+    const count = 6; // 粒子数量
+
+    for (let i = 0; i < count; i++) {
+        const particle = document.createElement('div');
+        particle.className = 'star-particle';
+
+        // 初始位置：目录项中心
+        particle.style.left = (rect.width / 2) + 'px';
+        particle.style.top = (rect.height / 2) + 'px';
+
+        // 随机方向
+        const angle = Math.random() * Math.PI * 2;
+        const distance = 20 + Math.random() * 25;
+
+        const x = Math.cos(angle) * distance;
+        const y = Math.sin(angle) * distance;
+
+        // 应用漂移
+        particle.style.transform = `translate(${x}px, ${y}px)`;
+
+        target.appendChild(particle);
+
+        // 动画结束后删除
+        setTimeout(() => particle.remove(), 800);
+    }
+}
+
     const container = document.getElementById('toc-container');
 
     // 读取折叠状态
@@ -53,6 +83,10 @@ function generateTOC(tocData) {
 
     // 点击跳转
     document.querySelectorAll('.toc-item').forEach(item => {
+        item.addEventListener('mouseenter', () => {
+    spawnParticles(item);
+});
+
         item.addEventListener('click', () => {
             const target = document.getElementById(item.dataset.id);
             if (target) {
