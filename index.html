@@ -14,8 +14,6 @@
 
     /* ====== 全局深空星云背景（昼夜通用） ====== */
     body {
-        position: relative;
-        z-index: -1;
         font-family: 'SimSun', STSong, serif;
         line-height: 1.8;
         max-width: var(--max-width);
@@ -485,53 +483,6 @@
     overflow: hidden;
     transition: height 0.35s ease;
 }
-/* ===== 全局星尘粒子背景 ===== */
-#starfield {
-    position: fixed;
-    inset: 0;
-    z-index: 0;
-    overflow: hidden;
-    pointer-events: none;
-}
-
-.star {
-    position: absolute;
-    width: 2px;
-    height: 2px;
-    background: radial-gradient(circle, rgba(255,255,255,0.9), transparent 70%);
-    border-radius: 50%;
-    opacity: 0.8;
-    animation: starFloat linear infinite;
-}
-
-@keyframes starFloat {
-    0% {
-        transform: translateY(0px);
-        opacity: 0.8;
-    }
-    100% {
-        transform: translateY(-120vh);
-        opacity: 0;
-    }
-}
-body {
-    position: relative;
-    z-index: 0;
-}
-
-#starfield {
-    position: fixed;
-    inset: 0;
-    z-index: -1; /* 关键：放在 body 背景上面，但在所有内容下面 */
-    pointer-events: none;
-}
-#sidebar,
-#mobile-overlay,
-#mobile-toc-toggle,
-#diary-container {
-    position: relative;
-    z-index: 1;
-}
 
 
 
@@ -542,7 +493,6 @@ body {
 </head>
 <body>
     <!-- 侧边栏 -->
-    <div id="starfield"></div>
     <div id="sidebar">
         <button class="close-toc">×</button>
         <input type="text" id="search-box" placeholder="搜索日记...">
