@@ -483,50 +483,18 @@
     overflow: hidden;
     transition: height 0.35s ease;
 }
-/* ===== 目录项星轨扫描高亮 ===== */
+/* ===== 目录项磁吸高亮 ===== */
+.toc-item {
+    transition: background 0.25s ease, color 0.25s ease;
+    border-radius: 6px;
+}
+
 .toc-item.active {
-    position: relative;
+    background: rgba(255, 255, 255, 0.12);
     color: #ffe9c6;
-    text-shadow: 0 0 6px rgba(255, 230, 180, 0.8);
+    backdrop-filter: blur(4px);
 }
 
-.toc-item.active::before {
-    content: "";
-    position: absolute;
-    left: -10px;
-    top: 50%;
-    width: 6px;
-    height: 6px;
-    background: radial-gradient(circle, #fff, transparent);
-    border-radius: 50%;
-    transform: translateY(-50%);
-    animation: startrail-pulse 1.2s infinite ease-in-out;
-}
-
-.toc-item.active::after {
-    content: "";
-    position: absolute;
-    left: 0;
-    top: 50%;
-    width: 0%;
-    height: 2px;
-    background: linear-gradient(90deg, rgba(255,255,255,0.8), transparent);
-    transform: translateY(-50%);
-    animation: startrail-line 1.2s infinite ease-out;
-}
-
-@keyframes startrail-line {
-    0% { width: 0%; opacity: 0; }
-    20% { width: 40%; opacity: 1; }
-    60% { width: 80%; opacity: 1; }
-    100% { width: 100%; opacity: 0; }
-}
-
-@keyframes startrail-pulse {
-    0% { transform: translateY(-50%) scale(0.6); opacity: 0.4; }
-    50% { transform: translateY(-50%) scale(1); opacity: 1; }
-    100% { transform: translateY(-50%) scale(0.6); opacity: 0.4; }
-}
 
 
 
