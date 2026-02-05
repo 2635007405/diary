@@ -514,6 +514,24 @@
         opacity: 0;
     }
 }
+body {
+    position: relative;
+    z-index: 0;
+}
+
+#starfield {
+    position: fixed;
+    inset: 0;
+    z-index: -1; /* 关键：放在 body 背景上面，但在所有内容下面 */
+    pointer-events: none;
+}
+#sidebar,
+#mobile-overlay,
+#mobile-toc-toggle,
+#diary-container {
+    position: relative;
+    z-index: 1;
+}
 
 
 
