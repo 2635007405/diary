@@ -196,4 +196,43 @@ function initTheme() {
         window.scrollTo({ top: 0, behavior: 'smooth' });
     });
 }
+// ===== Scroll Spy 星光连线 =====
+function initTocLine() {
+    const svg = document.getElementById('toc-line-svg');
+    const line = document.createElementNS("http://www.w3.org/2000/svg", "path");
+    line.classList.add("toc-line");
+    svg.appendChild(line);
+
+    function updateLine() {
+        const active = document.querySelector('.toc-item.active');
+        if (!active) {
+            line.style.opacity = 0;
+            return;
+        }
+
+        const targetId = active.dataset.id;
+        const target = document.getElementById(targetId);
+        if (!target) {
+            line.style.opacity = 0;
+            return;
+        }
+
+        const tocRect = active.getBoundingClientRect();
+        const targetRect = target.getBoundingClientRect();
+
+        const x1 = tocRect.right + 10;
+        const y1 = tocRect.top + tocRect.height / 2;
+
+        const x2 = targetRect.left - 10;
+        const y2 = targetRect.top + targetRect.height / 2;
+
+        const d = `M ${x1},${y1} L ${x2},${y2}`;
+        line.setAttribute("d", d);
+        line.style.opacity = 1;
+    }
+
+    window.addEventListener('scroll', updateLine);
+    window.addEventListener('resize', updateLine);
+    setInterval(updateLine, 200);
+}
 
