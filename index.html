@@ -557,6 +557,30 @@
         font-size: 20px;
     }
 }
+/* ===== 深空柔光缩进（适配 DiaryParser 的 .content） ===== */
+.content p {
+    text-indent: 2em; /* 段首缩进 */
+    line-height: 1.9;
+    margin: 14px 0;
+    position: relative;
+}
+
+/* 柔光效果：段落左侧有轻微光晕 */
+.content p::before {
+    content: "";
+    position: absolute;
+    left: -8px;
+    top: 0;
+    width: 4px;
+    height: 100%;
+    background: linear-gradient(
+        to bottom,
+        rgba(255, 255, 255, 0.12),
+        rgba(255, 255, 255, 0)
+    );
+    border-radius: 2px;
+    pointer-events: none;
+}
 
 
 
