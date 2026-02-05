@@ -609,6 +609,50 @@ body {
 .content p + p {
     margin-top: 18px;
 }
+:root {
+    --deep-space-bg: rgba(10, 12, 20, 0.65);
+    --deep-space-border: rgba(255, 255, 255, 0.12);
+    --deep-space-glow: rgba(255, 230, 180, 0.45);
+    --deep-space-text: #f5e9d2;
+}
+body {
+    color: var(--deep-space-text);
+}
+.date {
+    color: var(--deep-space-text);
+    text-shadow: 0 0 8px var(--deep-space-glow);
+    border-top: 1px solid var(--deep-space-border);
+    border-bottom: 1px solid var(--deep-space-border);
+}
+.content p::before {
+    background: linear-gradient(
+        to bottom,
+        var(--deep-space-border),
+        rgba(255,255,255,0)
+    );
+}
+.chapter-title {
+    color: var(--deep-space-text);
+    text-shadow: 0 0 10px var(--deep-space-glow);
+    border-bottom: 1px solid var(--deep-space-border);
+}
+.revelation-title {
+    color: var(--deep-space-text);
+    text-shadow: 0 0 10px var(--deep-space-glow);
+}
+
+.revelation-date {
+    color: var(--deep-space-text);
+    border-bottom: 1px solid var(--deep-space-border);
+}
+#diary-container {
+    background: linear-gradient(
+        to right,
+        rgba(0,0,0,0) 0%,
+        var(--deep-space-bg) 50%,
+        rgba(0,0,0,0) 100%
+    );
+}
 
 
 
