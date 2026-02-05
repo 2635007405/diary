@@ -494,6 +494,26 @@
     color: #ffe9c6;
     backdrop-filter: blur(4px);
 }
+/* ===== 浮动柔光标题栏 ===== */
+#floating-header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    padding: 12px 20px;
+    font-size: 20px;
+    font-weight: bold;
+    color: #ffe9c6;
+    text-shadow: 0 0 6px rgba(255, 230, 180, 0.6);
+    background: rgba(20, 20, 30, 0.45);
+    backdrop-filter: blur(8px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    z-index: 999;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    transform: translateY(-20px);
+}
 
 
 
@@ -520,7 +540,7 @@
     <div id="diary-container" class="chapter-container">
         <div class="loading">正在加载日记内容...</div>
     </div>
-
+    <div id="floating-header"></div>
     <script src="js/utils.js"></script>
     <script>
         // 远程数据源
@@ -735,7 +755,7 @@ if (isRevelation) {
                     '<div class="error">日记加载失败，请稍后重试</div>';
             }
         }
-
+        initFloatingHeader();
         initDiary();
     </script>
 </body>
