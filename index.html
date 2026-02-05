@@ -653,6 +653,42 @@ body {
         rgba(0,0,0,0) 100%
     );
 }
+/* ===== 全局阴影统一 ===== */
+* {
+    text-shadow: none;
+    box-shadow: none;
+}
+.date,
+.chapter-title,
+.revelation-title {
+    text-shadow: 0 0 10px rgba(255, 230, 180, 0.45);
+}
+/* ===== 全局透明度统一 ===== */
+.date,
+.chapter-title,
+.revelation-title,
+#diary-container {
+    backdrop-filter: blur(6px);
+    background: rgba(20, 20, 30, 0.35);
+}
+/* ===== 全局边框亮度统一 ===== */
+.date,
+.chapter-title,
+.revelation-title {
+    border-color: rgba(255, 255, 255, 0.12);
+}
+/* ===== 全局 hover 统一 ===== */
+a:hover,
+.toc-item:hover {
+    color: #ffe9c6;
+    text-shadow: 0 0 6px rgba(255, 230, 180, 0.5);
+    transition: 0.25s ease;
+}
+/* ===== 内容区域柔光边缘 ===== */
+#diary-container {
+    box-shadow: 0 0 40px rgba(0, 0, 0, 0.35);
+    border-radius: 10px;
+}
 
 
 
