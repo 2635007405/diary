@@ -935,7 +935,6 @@ if (isRevelation) {
 
         // 初始化移动端交互
         const sidebar = document.getElementById('sidebar');
-        const toggleBtn = document.getElementById('mobile-toc-toggle');
         const closeBtn = document.querySelector('.close-toc');
         const overlay = document.getElementById('mobile-overlay');
 
@@ -950,16 +949,6 @@ if (isRevelation) {
             overlay.classList.remove('active');
             document.body.classList.remove('sidebar-open');
         }
-
-        toggleBtn.addEventListener('click', (e) => {
-            e.stopPropagation();
-            const isActive = sidebar.classList.contains('active');
-            if (isActive) {
-                closeSidebar();
-            } else {
-                openSidebar();
-            }
-        });
 
         closeBtn.addEventListener('click', () => {
             closeSidebar();
